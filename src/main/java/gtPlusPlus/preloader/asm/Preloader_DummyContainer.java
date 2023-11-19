@@ -1,8 +1,5 @@
 package gtPlusPlus.preloader.asm;
 
-import static gregtech.api.enums.Mods.GTPlusPlus;
-import static gregtech.api.enums.Mods.GregTech;
-
 import java.io.File;
 import java.util.Collections;
 
@@ -29,7 +26,7 @@ public class Preloader_DummyContainer extends DummyModContainer {
         meta.credits = "Roll Credits ...";
         meta.authorList = Collections.singletonList("Alkalus");
         meta.screenshots = new String[0];
-        meta.parent = GTPlusPlus.ID;
+        meta.parent = "miscutils";
     }
 
     @Override
@@ -62,7 +59,7 @@ public class Preloader_DummyContainer extends DummyModContainer {
         // Circuits
         CORE_Preloader.enableOldGTcircuits = config.getBoolean(
                 "enableOldGTcircuits",
-                GregTech.ID,
+                "gregtech",
                 false,
                 "Restores circuits and their recipes from Pre-5.09.28 times.");
     }
