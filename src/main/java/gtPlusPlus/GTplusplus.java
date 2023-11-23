@@ -74,8 +74,7 @@ import gtPlusPlus.xmod.thaumcraft.commands.CommandDumpAspects;
                 + " after:OpenBlocks;"
                 + " after:IC2NuclearControl;"
                 + " after:TGregworks;"
-                + " after:StevesCarts;"
-                + " required-after:gtnhlib@[0.0.10,);")
+                + " after:StevesCarts;")
 public class GTplusplus implements ActionListener {
 
     public enum INIT_PHASE {

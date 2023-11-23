@@ -17,6 +17,8 @@ import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.common.widget.ProgressBar;
 import com.gtnewhorizons.modularui.common.widget.ProgressBar.Direction;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.gui.modularui.GT_UITextures;
 import gregtech.common.gui.modularui.UIHelper;
 import gregtech.nei.GT_NEI_DefaultHandler.FixedPositionedStack;
@@ -334,6 +336,7 @@ public class GTPP_Recipe extends GT_Recipe {
                 true) {
 
             @Override
+            @SideOnly(Side.CLIENT)
             protected List<String> handleNEIItemInputTooltip(List<String> currentTip, FixedPositionedStack pStack) {
                 if (ItemUtils.isMillingBall(pStack.item)) {
                     currentTip.add(GRAY + "Does not always get consumed in the process");
@@ -344,6 +347,7 @@ public class GTPP_Recipe extends GT_Recipe {
             }
 
             @Override
+            @SideOnly(Side.CLIENT)
             protected void drawNEIOverlayForInput(FixedPositionedStack stack) {
                 if (ItemUtils.isMillingBall(stack.item)) {
                     drawNEIOverlayText("NC*", stack);
@@ -755,6 +759,7 @@ public class GTPP_Recipe extends GT_Recipe {
             protected void drawNEIDurationInfo(NEIRecipeInfo recipeInfo) {}
 
             @Override
+            @SideOnly(Side.CLIENT)
             protected List<String> handleNEIItemOutputTooltip(List<String> currentTip, FixedPositionedStack pStack) {
                 if (ModItems.fluidFertBasic != null && pStack.isChanceBased()) {
                     // noinspection deprecation
@@ -767,6 +772,7 @@ public class GTPP_Recipe extends GT_Recipe {
             }
 
             @Override
+            @SideOnly(Side.CLIENT)
             protected void drawNEIOverlayForOutput(FixedPositionedStack stack) {}
         }.useModularUI(true).setNEISpecialInfoFormatter((recipeInfo, applyPrefixAndSuffix) -> {
             List<String> result = new ArrayList<>();
@@ -855,6 +861,7 @@ public class GTPP_Recipe extends GT_Recipe {
         }
 
         @Override
+        @SideOnly(Side.CLIENT)
         protected List<String> handleNEIItemInputTooltip(List<String> currentTip, FixedPositionedStack pStack) {
             if (ItemUtils.isCatalyst(pStack.item)) {
                 currentTip.add(GRAY + "Does not always get consumed in the process");
@@ -866,6 +873,7 @@ public class GTPP_Recipe extends GT_Recipe {
         }
 
         @Override
+        @SideOnly(Side.CLIENT)
         protected void drawNEIOverlayForInput(FixedPositionedStack stack) {
             if (ItemUtils.isCatalyst(stack.item)) {
                 drawNEIOverlayText("NC*", stack);

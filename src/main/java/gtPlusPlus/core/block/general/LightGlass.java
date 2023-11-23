@@ -7,11 +7,9 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import codechicken.nei.api.API;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -38,8 +36,6 @@ public class LightGlass extends BlockAir {
         setBlockTextureName(GTPlusPlus.ID + ":" + "blockMFEffect");
         setStepSound(Block.soundTypeGlass);
         GameRegistry.registerBlock(this, "blockMFEffect");
-
-        API.hideItem(new ItemStack(this));
     }
 
     /**

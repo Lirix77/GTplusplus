@@ -19,7 +19,6 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.reflect.ClassPath;
-import com.gtnewhorizon.gtnhlib.reflect.Fields;
 
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.core.util.data.StringUtils;
