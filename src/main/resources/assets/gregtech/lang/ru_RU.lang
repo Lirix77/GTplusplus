@@ -107,9 +107,9 @@ GTPP.MBTT.SteamOutputBus=Выходная шина (Пар)
 
 
 
-//Achievements
+#Achievements
 
-//4/2/19
+#4/2/19
 achievement.gt.blockmachines.fusioncomputer.tier.09=Термоядерный компьютер MK IV
 achievement.gtplusplus.blockcasings.3.12=Корпус термоядерного реактора MK III
 achievement.gtplusplus.blockcasings.3.13=Усовершенствованное магнитное сдерживание!
@@ -124,7 +124,7 @@ achievement.gt.blockmachines.gtplusplus.fusion.single.desc=[AL] Возьмите
 achievement.gt.blockmachines.gtplusplus.tank.plasma.desc=[AL] Возьмите этот предмет, чтобы увидеть рецепт в NEI
 
 
-//5/2/19
+#5/2/19
 achievement.MU-metaitem.01.32106=Младший физик
 achievement.MU-metaitem.01.32107=Дипломированный физик
 achievement.MU-metaitem.01.32108=Ученый физик
@@ -154,7 +154,7 @@ achievement.item.GTPP.BattPack.09.name.desc=[AL] Возьмите этот пр�
 
 
 
-//14/2/19
+#14/2/19
 achievement.gtpp.start=Грегтек++
 achievement.gtpp.start.desc=Итак, думаете, у вас есть все, что нужно?
 achievement.hatch.control=Сюда вы помещаете ядро управления.
@@ -222,25 +222,25 @@ achievement.decay.technetium99m.desc=Продукт циклотрона
 achievement.decay.technetium99=Технеций-99
 achievement.decay.technetium99.desc=Продукт циклотрона
 
-//24/11/19
+#24/11/19
 achievement.gt.blockmachines.hatch.turbine.input.tier.00=Корпус турбины
 achievement.gt.blockmachines.hatch.turbine.input.tier.00.desc=[AL] Возьмите этот предмет, чтобы увидеть рецепт в NEI
 
-//Added 6/12/21
+#Added 6/12/21
 achievement.gt.blockmachines.gtpp.multimachine.flotationcell=Флотационная камера
 achievement.gt.blockmachines.gtpp.multimachine.flotationcell.desc=[AL] Возьмите этот предмет, чтобы увидеть рецепт в NEI
 achievement.gt.blockmachines.gtpp.multimachine.isamill=Изамилл
 achievement.gt.blockmachines.gtpp.multimachine.isamill.desc=[AL] Возьмите этот предмет, чтобы увидеть рецепт в NEI
 
-//2023-1-13
+#2023-1-13
 achievement.gt.blockmachines.industrialalloysmelter.controller.tier.mega=Наконец-то Быстрый Пикачу-сплав
 
-//2023-4-8
+#2023-4-8
 tooltip.flotationCell.lockedTo=Заблокировано для:
 tooltip.large_macerator.tier=Уровень: §6%s
 tooltip.large_distill_tower.upgraded=§6Модернизированно
 
-//2023-7-12
+#2023-7-12
 achievement.gtplusplus.blockcasings.5.3=Оболочка сдерживания стихий
 achievement.gtplusplus.blockcasings.5.3.desc=[AL] Возьмите этот предмет, чтобы увидеть рецепт в NEI
 achievement.gtplusplus.blockcasings.5.7=Нейтронный импульсный манипулятор
