@@ -483,6 +483,28 @@ public class RECIPES_GREGTECH {
                             CI.getAlternativeTieredFluid(8, 144 * 18 * 16))
                     .itemOutputs(ItemUtils.getItemStackFromFQRN("miscutils:personalCloakingDevice-0.0", 1))
                     .eut(TierEU.RECIPE_UV).duration(1 * HOURS).addTo(AssemblyLine);
+
+            GT_Values.RA.stdBuilder()
+                    .metadata(RESEARCH_ITEM, GregtechItemList.Industrial_AlloyBlastSmelter.get(1, new Object() {}))
+                    .metadata(RESEARCH_TIME, 30 * MINUTES)
+                    .itemInputs(
+                            GregtechItemList.Industrial_AlloyBlastSmelter.get(64L, new Object() {}),
+                            GregtechItemList.Industrial_AlloyBlastSmelter.get(64L, new Object() {}),
+                            GregtechItemList.Industrial_AlloyBlastSmelter.get(64L, new Object() {}),
+                            GregtechItemList.Industrial_AlloyBlastSmelter.get(64L, new Object() {}),
+                            ItemList.UV_Coil.get(16L, new Object() {}),
+                            ItemList.Conveyor_Module_UV.get(4L, new Object() {}),
+                            new Object[] { OrePrefixes.circuit.get(Materials.SuperconductorUHV), 8 },
+                            new Object[] { OrePrefixes.circuit.get(Materials.Ultimate), 16 },
+                            ItemList.Circuit_Chip_PPIC.get(16, new Object() {}),
+                            ALLOY.PIKYONIUM.getPlate(16),
+                            ALLOY.CINOBITE.getScrew(32))
+                    .fluidInputs(
+                            ALLOY.PIKYONIUM.getFluidStack(144 * 8),
+                            ALLOY.INDALLOY_140.getFluidStack(144 * 9),
+                            Materials.SolderingAlloy.getMolten(144 * 10))
+                    .itemOutputs(GregtechItemList.Mega_AlloyBlastSmelter.get(1L)).eut(TierEU.RECIPE_UHV / 2)
+                    .duration(1 * MINUTES).addTo(AssemblyLine);
         }
     }
 

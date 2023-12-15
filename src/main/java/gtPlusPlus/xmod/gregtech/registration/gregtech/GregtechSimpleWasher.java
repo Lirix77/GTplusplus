@@ -3,6 +3,8 @@ package gtPlusPlus.xmod.gregtech.registration.gregtech;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.github.bartimaeusnek.bartworks.system.material.Werkstoff;
+
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.util.GTPP_Recipe;
@@ -56,6 +58,12 @@ public class GregtechSimpleWasher {
             addSimpleWashRecipe(dustDirty, dustClean);
         }
 
+        for (Werkstoff v : Werkstoff.werkstoffHashSet) {
+            dustClean = v.hasItemType(OrePrefixes.dust) ? v.get(OrePrefixes.dust) : null;
+            dustDirty = v.hasItemType(OrePrefixes.dustImpure) ? v.get(OrePrefixes.dustImpure) : null;
+            addSimpleWashRecipe(dustDirty, dustClean);
+        }
+
         return GTPP_Recipe.GTPP_Recipe_Map.sSimpleWasherRecipes.mRecipeList.size() > mRecipeCount;
     }
 
@@ -67,6 +75,12 @@ public class GregtechSimpleWasher {
         for (Materials v : Materials.values()) {
             crushedClean = GT_OreDictUnificator.get(OrePrefixes.crushedPurified, v, 1L);
             crushedDirty = GT_OreDictUnificator.get(OrePrefixes.crushed, v, 1L);
+            addSimpleWashRecipe(crushedDirty, crushedClean);
+        }
+
+        for (Werkstoff v : Werkstoff.werkstoffHashSet) {
+            crushedClean = v.hasItemType(OrePrefixes.crushedPurified) ? v.get(OrePrefixes.crushedPurified) : null;
+            crushedDirty = v.hasItemType(OrePrefixes.crushed) ? v.get(OrePrefixes.crushed) : null;
             addSimpleWashRecipe(crushedDirty, crushedClean);
         }
 

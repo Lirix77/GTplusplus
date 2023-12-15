@@ -1,5 +1,6 @@
 package gtPlusPlus.xmod.gregtech.loaders.recipe;
 
+import static gregtech.api.enums.Mods.BartWorks;
 import static gregtech.api.enums.Mods.EternalSingularity;
 import static gregtech.api.enums.Mods.GoodGenerator;
 import static gregtech.api.util.GT_ModHandler.getModItem;
@@ -7,6 +8,7 @@ import static gregtech.api.util.GT_ModHandler.getModItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.github.bartimaeusnek.bartworks.system.material.WerkstoffLoader;
 import com.github.technus.tectech.recipe.TT_recipeAdder;
 
 import gregtech.api.enums.GT_Values;
@@ -57,6 +59,19 @@ public class RecipeLoader_ChemicalSkips {
         ItemStack stemcells = GT_Utility.copyAmountUnsafe(64 * 32, ItemList.Circuit_Chip_Stemcell.get(1));
         ItemStack biocells = GT_Utility.copyAmountUnsafe(64 * 32, ItemList.Circuit_Chip_Biocell.get(1));
         // Platline
+        CORE.RA.addQuantumTransformerRecipe(
+                new ItemStack[] { WerkstoffLoader.PTMetallicPowder.get(OrePrefixes.dust, 32),
+                        ItemUtils.getSimpleStack(GenericChem.mPlatinumGroupCatalyst, 0) },
+                new FluidStack[] {},
+                new FluidStack[] {},
+                new ItemStack[] { Materials.Platinum.getDust(64), Materials.Palladium.getDust(64),
+                        Materials.Iridium.getDust(64), Materials.Osmium.getDust(64),
+                        WerkstoffLoader.Rhodium.get(OrePrefixes.dust, 64),
+                        WerkstoffLoader.Ruthenium.get(OrePrefixes.dust, 64) },
+                new int[] { 1667, 1667, 1667, 1667, 1667, 1667 },
+                20 * 20,
+                (int) TierEU.RECIPE_UV,
+                1);
 
         // Early Plastics
         CORE.RA.addQuantumTransformerRecipe(
@@ -139,8 +154,10 @@ public class RecipeLoader_ChemicalSkips {
                 new FluidStack[] {},
                 new FluidStack[] {},
                 new ItemStack[] { Materials.Cerium.getDust(64), Materials.Gadolinium.getDust(64),
-                        Materials.Samarium.getDust(64), ItemList.SuperconductorComposite.get(1) },
-                new int[] { 1667, 1667, 1667, 1667 },
+                        Materials.Samarium.getDust(64), getModItem(BartWorks.ID, "gt.bwMetaGenerateddust", 64L, 11002), // Hafnia
+                        getModItem(BartWorks.ID, "gt.bwMetaGenerateddust", 64L, 11007), // Zirconium
+                        ItemList.SuperconductorComposite.get(1) },
+                new int[] { 1667, 1667, 1667, 1667, 1667, 1667 },
                 20 * 20,
                 (int) TierEU.RECIPE_UHV,
                 2);
@@ -175,7 +192,7 @@ public class RecipeLoader_ChemicalSkips {
         // Stem Cells
         CORE.RA.addQuantumTransformerRecipe(
                 new ItemStack[] { Materials.Calcium.getDust(32), Materials.MeatRaw.getDust(32),
-
+                        ItemList.GTNHBioItems.get(32),
                         ItemUtils.getSimpleStack(GenericChem.mRawIntelligenceCatalyst, 0) },
                 new FluidStack[] {},
                 new FluidStack[] { Materials.GrowthMediumRaw.getFluid(1000 * 1024),
@@ -283,6 +300,7 @@ public class RecipeLoader_ChemicalSkips {
                 200 * 20,
                 (int) TierEU.RECIPE_UIV,
                 4);
+
     }
 
     private static void fusionReactorRecipes() {
@@ -302,6 +320,14 @@ public class RecipeLoader_ChemicalSkips {
     }
 
     private static void catalystRecipes() {
+        CORE.RA.addSixSlotAssemblingRecipe(
+                new ItemStack[] { CI.getNumberedCircuit(10), CI.getEmptyCatalyst(1),
+                        getModItem(BartWorks.ID, "gt.bwMetaGenerateddust", 64L, 88), Materials.Osmiridium.getDust(64),
+                        Materials.Carbon.getNanite(64) },
+                ELEMENT.STANDALONE.HYPOGEN.getFluidStack(360),
+                ItemUtils.getSimpleStack(GenericChem.mPlatinumGroupCatalyst, 1),
+                60 * 20,
+                (int) TierEU.RECIPE_UEV);
 
         CORE.RA.addSixSlotAssemblingRecipe(
                 new ItemStack[] { CI.getNumberedCircuit(10), CI.getEmptyCatalyst(1),
@@ -351,6 +377,16 @@ public class RecipeLoader_ChemicalSkips {
                         Materials.Gadolinium.getDust(64), Materials.Silver.getNanite(1) },
                 ELEMENT.STANDALONE.HYPOGEN.getFluidStack(9216),
                 ItemUtils.getSimpleStack(GenericChem.mRareEarthGroupCatalyst, 1),
+                60 * 20,
+                (int) TierEU.RECIPE_UEV);
+
+        CORE.RA.addSixSlotAssemblingRecipe(
+                new ItemStack[] { CI.getNumberedCircuit(10), CI.getEmptyCatalyst(1),
+                        WerkstoffLoader.Hedenbergit.get(OrePrefixes.lens, 1),
+                        GT_OreDictUnificator.get(OrePrefixes.nanite, Materials.Silver, 1, false),
+                        ItemList.Circuit_Silicon_Wafer6.get(64) },
+                ELEMENT.STANDALONE.HYPOGEN.getFluidStack(9216),
+                ItemUtils.getSimpleStack(GenericChem.mLimpidWaterCatalyst, 1),
                 60 * 20,
                 (int) TierEU.RECIPE_UEV);
 
@@ -405,6 +441,16 @@ public class RecipeLoader_ChemicalSkips {
 
         CORE.RA.addSixSlotAssemblingRecipe(
                 new ItemStack[] { CI.getNumberedCircuit(10), CI.getEmptyCatalyst(1),
+                        WerkstoffLoader.Hedenbergit.get(OrePrefixes.lens, 64),
+                        GT_OreDictUnificator.get(OrePrefixes.nanite, Materials.Silver, 64, false),
+                        ItemList.Circuit_Silicon_Wafer6.get(64) },
+                FluidUtils.getFluidStack("molten.shirabon", 92160),
+                ItemUtils.getSimpleStack(GenericChem.mFlawlessWaterCatalyst, 1),
+                60 * 20,
+                (int) TierEU.RECIPE_UMV);
+
+        CORE.RA.addSixSlotAssemblingRecipe(
+                new ItemStack[] { CI.getNumberedCircuit(10), CI.getEmptyCatalyst(1),
                         Particle.getBaseParticle(Particle.HIGGS_BOSON), Particle.getIon("Helium", 0),
                         Particle.getIon("Hydrogen", 0), MaterialsUEVplus.Eternity.getNanite(16) },
                 FluidUtils.getFluidStack("molten.shirabon", 92160),
@@ -420,6 +466,7 @@ public class RecipeLoader_ChemicalSkips {
                 ItemUtils.getSimpleStack(GenericChem.TemporalHarmonyCatalyst, 1),
                 60 * 20,
                 (int) TierEU.RECIPE_UXV);
+
     }
 
     private static void tieredCasingRecipes() {

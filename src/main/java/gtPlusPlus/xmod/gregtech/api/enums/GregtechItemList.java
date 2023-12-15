@@ -223,6 +223,7 @@ public enum GregtechItemList implements GregtechItemContainer {
     Industrial_AlloyBlastSmelter,
     Casing_Coil_BlastSmelter,
     Casing_BlastSmelter,
+    Mega_AlloyBlastSmelter,
 
     // Quantum Force Transformer
     QuantumForceTransformer,

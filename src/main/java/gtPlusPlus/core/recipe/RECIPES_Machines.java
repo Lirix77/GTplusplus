@@ -1,13 +1,17 @@
 package gtPlusPlus.core.recipe;
 
+import static gregtech.api.enums.Mods.BartWorks;
 import static gregtech.api.enums.Mods.COFHCore;
 import static gregtech.api.enums.Mods.EternalSingularity;
+import static gregtech.api.enums.Mods.GoodGenerator;
+import static gregtech.api.enums.Mods.GregTech;
 import static gregtech.api.enums.Mods.Railcraft;
 import static gregtech.api.enums.Mods.RemoteIO;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -504,6 +508,28 @@ public class RECIPES_Machines {
                 GregtechItemList.Large_Plasma_Turbine.get(1),
                 20 * 60,
                 MaterialUtils.getVoltageForTier(7));
+        if (GoodGenerator.isModLoaded()) {
+            GT_Values.RA.addAssemblerRecipe(
+                    new ItemStack[] { CI.getNumberedAdvancedCircuit(18),
+                            GT_ModHandler.getModItem(GoodGenerator.ID, "supercriticalFluidTurbineCasing", 1),
+                            GT_ModHandler.getModItem(BartWorks.ID, "gt.bwMetaGeneratedplate", 4, 10101),
+                            GT_ModHandler.getModItem(BartWorks.ID, "gt.bwMetaGeneratedscrew", 8, 10101) },
+                    FluidRegistry.getFluidStack("molten.adamantium alloy", 144 * 2),
+                    GregtechItemList.Casing_Turbine_SC.get(1),
+                    20 * 5,
+                    MaterialUtils.getVoltageForTier(6));
+            GT_Values.RA.addAssemblerRecipe(
+                    new ItemStack[] { CI.getNumberedAdvancedCircuit(18),
+                            GT_ModHandler.getModItem(GregTech.ID, "gt.blockmachines", 1, 32016),
+                            GT_ModHandler.getModItem(BartWorks.ID, "gt.bwMetaGeneratedplate", 8, 10104),
+                            GT_ModHandler.getModItem(BartWorks.ID, "gt.bwMetaGeneratedscrew", 16, 10104),
+                            GT_ModHandler.getModItem(BartWorks.ID, "gt.bwMetaGeneratedgearGt", 4, 10104),
+                            CI.getCircuit(7, 8) },
+                    FluidRegistry.getFluidStack("molten.hikarium", 144 * 8),
+                    GregtechItemList.Large_SCSteam_Turbine.get(1),
+                    20 * 60,
+                    MaterialUtils.getVoltageForTier(7));
+        }
     }
 
     private static void multiSolarTower() {
