@@ -1,14 +1,8 @@
 package gtPlusPlus.xmod.gregtech.loaders.recipe;
 
 import static advsolar.utils.MTRecipeManager.transformerRecipes;
-import static gregtech.api.enums.Mods.AdvancedSolarPanel;
-import static gregtech.api.enums.Mods.GalaxySpace;
 
 import advsolar.utils.MTRecipeRecord;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_OreDictUnificator;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.util.math.MathUtils;
