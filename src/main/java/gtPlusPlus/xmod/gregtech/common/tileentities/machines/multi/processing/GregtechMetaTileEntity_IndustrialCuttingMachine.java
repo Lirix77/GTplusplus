@@ -11,6 +11,11 @@ import static gregtech.api.enums.GT_HatchElement.Muffler;
 import static gregtech.api.enums.GT_HatchElement.OutputBus;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -27,8 +32,9 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
+import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
-import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
@@ -69,7 +75,7 @@ public class GregtechMetaTileEntity_IndustrialCuttingMachine extends
                 .addInfo("200% faster than using single block machines of the same voltage")
                 .addInfo("Only uses 75% of the EU/t normally required").addInfo("Processes four items per voltage tier")
                 .addPollutionAmount(getPollutionPerSecond(null)).addSeparator().beginStructureBlock(3, 3, 5, true)
-                .addController("Front Center").addCasingInfoMin("Cutting Factory Frames", 26, false)
+                .addController("Front Center").addCasingInfoMin("Cutting Factory Frames", 14, false)
                 .addInputBus("Any Casing", 1).addOutputBus("Any Casing", 1).addInputHatch("Any Casing", 1)
                 .addEnergyHatch("Any Casing", 1).addMaintenanceHatch("Any Casing", 1).addMufflerHatch("Any Casing", 1)
                 .toolTipFinisher(CORE.GT_Tooltip_Builder.get());
@@ -111,7 +117,7 @@ public class GregtechMetaTileEntity_IndustrialCuttingMachine extends
     @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         mCasing = 0;
-        return checkPiece(mName, 1, 1, 0) && mCasing >= 26 && checkHatch();
+        return checkPiece(mName, 1, 1, 0) && mCasing >= 14 && checkHatch();
     }
 
     @Override
@@ -130,8 +136,19 @@ public class GregtechMetaTileEntity_IndustrialCuttingMachine extends
     }
 
     @Override
-    public GT_Recipe.GT_Recipe_Map getRecipeMap() {
-        return mCuttingMode ? GT_Recipe.GT_Recipe_Map.sCutterRecipes : GT_Recipe.GT_Recipe_Map.sSlicerRecipes;
+    public RecipeMap<?> getRecipeMap() {
+        return mCuttingMode ? RecipeMaps.cutterRecipes : RecipeMaps.slicerRecipes;
+    }
+
+    @Nonnull
+    @Override
+    public Collection<RecipeMap<?>> getAvailableRecipeMaps() {
+        return Arrays.asList(RecipeMaps.cutterRecipes, RecipeMaps.slicerRecipes);
+    }
+
+    @Override
+    public int getRecipeCatalystPriority() {
+        return -1;
     }
 
     @Override
@@ -158,6 +175,11 @@ public class GregtechMetaTileEntity_IndustrialCuttingMachine extends
     @Override
     public boolean explodesOnComponentBreak(final ItemStack aStack) {
         return false;
+    }
+
+    @Override
+    public boolean isInputSeparationEnabled() {
+        return true;
     }
 
     public Block getCasingBlock() {

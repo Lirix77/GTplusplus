@@ -17,6 +17,8 @@ GT5U.gui.text.managing_power=§aManaging power
 GT5U.gui.text.no_scrap=§aInput too low quality
 GT5U.gui.text.warm_up=§aWarming up
 GT5U.gui.text.machine_locked_to_different_recipe=§7Machine is already locked to a different recipe
+GT5U.gui.text.no_output_for_sapling=§7This sapling yields no outputs
+GT5U.gui.text.no_tools=§7Missing applicable tools
 
 GTPP.EBF.heat=Heat capacity
 
@@ -38,6 +40,9 @@ GTPP.multiblock.duration=Duration
 GTPP.multiblock.multimachine.metal=Metal Mode. Does compressor (circuit 20), lathe (circuit 21) and electromagnetic polarizer (circuit 22).
 GTPP.multiblock.multimachine.fluid=Fluid Mode. Does fermenter (circuit 20), fluid extractor (circuit 21) and extractor (circuit 22).
 GTPP.multiblock.multimachine.misc=Misc. Mode. Does precision laser engraver (circuit 20), autoclave (circuit 21) and fluid solidifier (circuit 22).
+
+
+GTPP.waila.steam.use=Probably uses: §e%s§r L/t Steam
 
 GTPP.CC.machinetier=Control Core Tier
 GTPP.CC.discount=EU Discount

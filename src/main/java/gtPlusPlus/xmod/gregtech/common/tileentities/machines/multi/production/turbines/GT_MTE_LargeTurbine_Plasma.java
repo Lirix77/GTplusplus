@@ -15,14 +15,18 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.items.GT_MetaGenerated_Tool;
 import gregtech.api.objects.GT_RenderedTexture;
+import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
+import gregtech.api.recipe.maps.FuelBackend;
 import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_Recipe.GT_Recipe_Map;
 import gregtech.api.util.GT_Utility;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Turbine;
+import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
 @SuppressWarnings("deprecation")
 public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTurbineBase {
@@ -67,11 +71,26 @@ public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTur
         if (aLiquid == null) {
             return 0;
         }
-        GT_Recipe tFuel = GT_Recipe_Map.sPlasmaFuels.findFuel(aLiquid);
+        GT_Recipe tFuel = getRecipeMap().getBackend().findFuel(aLiquid);
         if (tFuel != null) {
             return tFuel.mSpecialValue;
         }
         return 0;
+    }
+
+    @Override
+    public RecipeMap<FuelBackend> getRecipeMap() {
+        return RecipeMaps.plasmaFuels;
+    }
+
+    @Override
+    public int getRecipeCatalystPriority() {
+        return -20;
+    }
+
+    @Override
+    protected boolean filtersFluid() {
+        return false;
     }
 
     @Override
@@ -95,7 +114,7 @@ public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTur
             }
 
             if (getEmptyTurbineAssemblies().size() > 0 || !areAllTurbinesTheSame()) {
-                stopMachine();
+                stopMachine(ShutDownReasonRegistry.NO_TURBINE);
                 return CheckRecipeResultRegistry.NO_TURBINE_FOUND;
             }
 
@@ -146,7 +165,7 @@ public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTur
                     optFlow = MathUtils.roundToClosestInt(aTotalOptimalFlow);
                     euPerTurbine = MathUtils.roundToClosestInt(aEUPerTurbine);
                     if (optFlow <= 0 || baseEff <= 0) {
-                        stopMachine(); // in case the turbine got removed
+                        stopMachine(ShutDownReasonRegistry.NONE); // in case the turbine got removed
                         return CheckRecipeResultRegistry.NO_FUEL_FOUND;
                     }
                 } else {
@@ -155,12 +174,15 @@ public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTur
             }
 
             // How much the turbine should be producing with this flow
-            int newPower = fluidIntoPower(tFluids, optFlow, baseEff, flowMultipliers);
+            long newPower = fluidIntoPower(tFluids, optFlow, baseEff, flowMultipliers);
 
             // Reduce produced power depending on the ratio between fuel value and turbine EU/t with the following
             // formula:
             // EU/t = EU/t * MIN(1, ( ( (FuelValue / 200) ^ 2 ) / EUPerTurbine))
-            int fuelValue = getFuelValue(new FluidStack(tFluids.get(0), 0));
+            int fuelValue = 0;
+            if (tFluids.size() > 0) {
+                fuelValue = getFuelValue(new FluidStack(tFluids.get(0), 0));
+            }
             float magicValue = (fuelValue * 0.005f) * (fuelValue * 0.005f);
             float efficiencyLoss = Math.min(1.0f, magicValue / euPerTurbine);
             newPower *= efficiencyLoss;
@@ -198,7 +220,7 @@ public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTur
     }
 
     @Override
-    int fluidIntoPower(ArrayList<FluidStack> aFluids, long aOptFlow, int aBaseEff, float[] flowMultipliers) {
+    long fluidIntoPower(ArrayList<FluidStack> aFluids, long aOptFlow, int aBaseEff, float[] flowMultipliers) {
         if (aFluids.size() >= 1) {
             aOptFlow *= 800; // CHANGED THINGS HERE, check recipe runs once per 20 ticks
             int tEU = 0;
@@ -280,11 +302,11 @@ public class GT_MTE_LargeTurbine_Plasma extends GregtechMetaTileEntity_LargerTur
 
     @Override
     protected ITexture getTextureFrontFace() {
-        return new GT_RenderedTexture(gregtech.api.enums.Textures.BlockIcons.LARGETURBINE_TU5);
+        return new GT_RenderedTexture(TexturesGtBlock.Overlay_Machine_Controller_Advanced);
     }
 
     @Override
     protected ITexture getTextureFrontFaceActive() {
-        return new GT_RenderedTexture(gregtech.api.enums.Textures.BlockIcons.LARGETURBINE_TU_ACTIVE5);
+        return new GT_RenderedTexture(TexturesGtBlock.Overlay_Machine_Controller_Advanced_Active);
     }
 }

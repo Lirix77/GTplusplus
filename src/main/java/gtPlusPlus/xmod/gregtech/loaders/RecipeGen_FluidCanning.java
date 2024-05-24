@@ -6,9 +6,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
 import gregtech.api.enums.GT_Values;
-import gregtech.api.util.GTPP_Recipe;
+import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_Recipe.GT_Recipe_Map;
 import gtPlusPlus.api.interfaces.RunnableWithInfo;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.core.lib.CORE;
@@ -58,20 +58,6 @@ public class RecipeGen_FluidCanning implements Runnable {
         return isValid;
     }
 
-    public RecipeGen_FluidCanning(boolean aExtracting, ItemStack aEmpty, ItemStack aFull, FluidStack aFluid) {
-        this(aExtracting, aEmpty, aFull, aFluid, GT_Values.NF, null, null);
-    }
-
-    public RecipeGen_FluidCanning(boolean aExtracting, ItemStack aEmpty, ItemStack aFull, FluidStack aFluidIn,
-            FluidStack aFluidOut) {
-        this(aExtracting, aEmpty, aFull, aFluidIn, aFluidOut, null, null);
-    }
-
-    public RecipeGen_FluidCanning(boolean aExtracting, ItemStack aEmpty, ItemStack aFull, FluidStack aFluid,
-            Integer aDuration, Integer aEUt) {
-        this(aExtracting, aEmpty, aFull, aFluid, GT_Values.NF, aDuration, aEUt);
-    }
-
     // Alternative Constructor
     public RecipeGen_FluidCanning(boolean aExtracting, ItemStack aEmpty, ItemStack aFull, FluidStack aFluidIn,
             FluidStack aFluidOut, Integer aDuration, Integer aEUt) {
@@ -110,7 +96,7 @@ public class RecipeGen_FluidCanning implements Runnable {
 
         // Check validity
 
-        GTPP_Recipe aRecipe = new GTPP_Recipe(
+        GT_Recipe aRecipe = new GT_Recipe(
                 true,
                 new ItemStack[] { aInput },
                 new ItemStack[] { aOutput },
@@ -163,7 +149,6 @@ public class RecipeGen_FluidCanning implements Runnable {
 
     private void generateRecipes() {
         if (isValid && recipe != null) {
-            // Logger.INFO("Processing "+(disableOptional ? "Extracting" : "Canning")+" Recipe.");
             if (this.disableOptional) {
                 addFluidExtractionRecipe(recipe);
             } else {
@@ -172,8 +157,7 @@ public class RecipeGen_FluidCanning implements Runnable {
         }
     }
 
-    private boolean addFluidExtractionRecipe(GT_Recipe aRecipe) {
-        boolean result = false;
+    private void addFluidExtractionRecipe(GT_Recipe aRecipe) {
         CORE.crash();
         Logger.INFO(
                 "[FE-Debug] " + aRecipe.mFluidOutputs[0].amount
@@ -185,17 +169,11 @@ public class RecipeGen_FluidCanning implements Runnable {
                         + aRecipe.mDuration
                         + ", Voltage: "
                         + aRecipe.mEUt);
-        int aCount1 = GT_Recipe_Map.sFluidExtractionRecipes.mRecipeList.size();
+        int aCount1 = getMapSize(RecipeMaps.fluidExtractionRecipes);
         int aCount2 = aCount1;
-        GT_Recipe_Map.sFluidExtractionRecipes.addRecipe(aRecipe);
-        aCount1 = GT_Recipe_Map.sFluidExtractionRecipes.mRecipeList.size();
-        result = aCount1 > aCount2;
-        if (result) {
-            // Logger.INFO("[FIND] Added Extraction recipe for "+ItemUtils.getArrayStackNames(aRecipe.mInputs)+",
-            // "+ItemUtils.getArrayStackNames(aRecipe.mOutputs)+",
-            // "+ItemUtils.getArrayStackNames(aRecipe.mFluidInputs)+",
-            // "+ItemUtils.getArrayStackNames(aRecipe.mFluidOutputs));
-        } else {
+        RecipeMaps.fluidExtractionRecipes.addRecipe(aRecipe);
+        aCount1 = getMapSize(RecipeMaps.fluidExtractionRecipes);
+        if (aCount1 <= aCount2) {
             Logger.INFO(
                     "[ERROR] Failed adding Extraction recipe for " + ItemUtils.getArrayStackNames(aRecipe.mInputs)
                             + ", "
@@ -206,22 +184,15 @@ public class RecipeGen_FluidCanning implements Runnable {
                             + ItemUtils.getArrayStackNames(aRecipe.mFluidOutputs));
             dumpStack();
         }
-        return result;
     }
 
-    private boolean addFluidCannerRecipe(GT_Recipe aRecipe) {
-        boolean result = false;
-        int aCount1 = GT_Recipe_Map.sFluidCannerRecipes.mRecipeList.size();
+    private void addFluidCannerRecipe(GT_Recipe aRecipe) {
+        boolean result;
+        int aCount1 = getMapSize(RecipeMaps.fluidCannerRecipes);
         int aCount2 = aCount1;
-        GT_Recipe_Map.sFluidCannerRecipes.addRecipe(aRecipe);
-        aCount1 = GT_Recipe_Map.sFluidCannerRecipes.mRecipeList.size();
-        result = aCount1 > aCount2;
-        if (result) {
-            // Logger.INFO("[FIND] Added Canning recipe for "+ItemUtils.getArrayStackNames(aRecipe.mInputs)+",
-            // "+ItemUtils.getArrayStackNames(aRecipe.mOutputs)+",
-            // "+ItemUtils.getArrayStackNames(aRecipe.mFluidInputs)+",
-            // "+ItemUtils.getArrayStackNames(aRecipe.mFluidOutputs));
-        } else {
+        RecipeMaps.fluidCannerRecipes.addRecipe(aRecipe);
+        aCount1 = getMapSize(RecipeMaps.fluidCannerRecipes);
+        if (aCount1 <= aCount2) {
             Logger.INFO(
                     "[ERROR] Failed adding Canning recipe for " + ItemUtils.getArrayStackNames(aRecipe.mInputs)
                             + ", "
@@ -232,7 +203,6 @@ public class RecipeGen_FluidCanning implements Runnable {
                             + ItemUtils.getArrayStackNames(aRecipe.mFluidOutputs));
             dumpStack();
         }
-        return result;
     }
 
     private void dumpStack() {
@@ -245,17 +215,7 @@ public class RecipeGen_FluidCanning implements Runnable {
         }
     }
 
-    private String buildLogString() {
-        int solidSize = getMapSize(GT_Recipe_Map.sCannerRecipes);
-        int fluidSize = getMapSize(GT_Recipe_Map.sFluidCannerRecipes);
-        return (disableOptional ? "EXTRACTING" : "CANNING") + " DEBUG | Solids: "
-                + solidSize
-                + " | Liquids: "
-                + fluidSize
-                + " | ";
-    }
-
-    private int getMapSize(GT_Recipe_Map aMap) {
-        return aMap.mRecipeList.size();
+    private int getMapSize(RecipeMap<?> aMap) {
+        return aMap.getAllRecipes().size();
     }
 }

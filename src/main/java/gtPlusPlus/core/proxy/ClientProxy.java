@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -45,6 +46,7 @@ import gtPlusPlus.core.entity.projectile.EntityToxinballSmall;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.lib.CORE.ConfigSwitches;
 import gtPlusPlus.core.tileentities.general.TileEntityDecayablesChest;
+import gtPlusPlus.nei.NEI_GTPP_Config;
 import gtPlusPlus.xmod.gregtech.common.render.GTPP_CapeRenderer;
 import gtPlusPlus.xmod.gregtech.common.render.GTPP_FlaskRenderer;
 import gtPlusPlus.xmod.gregtech.common.render.GTPP_Render_MachineBlock;
@@ -95,6 +97,8 @@ public class ClientProxy extends CommonProxy implements Runnable {
 
         new GTPP_FlaskRenderer();
 
+        MinecraftForge.EVENT_BUS.register(new NEI_GTPP_Config());
+
         super.init(e);
     }
 
@@ -143,23 +147,12 @@ public class ClientProxy extends CommonProxy implements Runnable {
     public void serverStarting(final FMLServerStartingEvent e) {}
 
     public void onPreLoad() {
-        /*
-         * if (ConfigSwitches.enableCustomCapes){ String arr$[] = { "draknyte1", "fobius" }; int len$ = arr$.length; for
-         * (int i$ = 0; i$ < len$; i$++) { String tName = arr$[i$]; mCapeList.add(tName.toLowerCase()); } (new
-         * Thread(this)).start(); }
-         */
+
     }
 
     @Override
     public void run() {
-        /*
-         * try { if (ConfigSwitches.enableCustomCapes){ Logger.INFO("GT++ Mod: Downloading Cape List.");
-         * @SuppressWarnings("resource") Scanner tScanner = new Scanner(new
-         * URL("https://github.com/draknyte1/GTplusplus/blob/master/SupporterList.txt").openStream()); while
-         * (tScanner.hasNextLine()) { String tName = tScanner.nextLine(); if
-         * (!this.mCapeList.contains(tName.toLowerCase())) { this.mCapeList.add(tName.toLowerCase()); } } } } catch
-         * (Throwable e) { Logger.INFO("Failed to download GT++ cape list."); }
-         */
+
     }
 
     @Override

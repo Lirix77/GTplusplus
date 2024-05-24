@@ -1,5 +1,11 @@
 package gtPlusPlus.core.item.chemistry;
 
+import static gregtech.api.recipe.RecipeMaps.distillationTowerRecipes;
+import static gregtech.api.recipe.RecipeMaps.distilleryRecipes;
+import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
+import static gregtech.api.util.GT_RecipeConstants.UniversalChemical;
+import static gtPlusPlus.api.recipe.GTPPRecipeMaps.chemicalDehydratorRecipes;
+
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -8,6 +14,7 @@ import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.util.GT_OreDictUnificator;
+import gregtech.api.util.GT_Utility;
 import gtPlusPlus.api.objects.minecraft.ItemPackage;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.recipe.common.CI;
@@ -28,25 +35,6 @@ public class CoalTar extends ItemPackage {
     public static Fluid Coal_Tar_Oil;
     public static Fluid Sulfuric_Coal_Tar_Oil;
     public static Fluid Naphthalene;
-
-    private static void recipeEthylBenzineFuelsIntoHeavyFuel() {
-        CORE.RA.addChemicalRecipe(
-                ItemUtils.getItemStackOfAmountFromOreDict("cellFuel", 9),
-                ItemUtils.getItemStackOfAmountFromOreDict("cellEthylbenzene", 2),
-                null,
-                FluidUtils.getFluidStack("nitrofuel", 7500),
-                ItemUtils.getItemStackOfAmountFromOreDict("cellEmpty", 11),
-                100,
-                1000);
-        CORE.RA.addChemicalRecipe(
-                ItemUtils.getItemStackOfAmountFromOreDict("cellBioDiesel", 9),
-                ItemUtils.getItemStackOfAmountFromOreDict("cellEthylbenzene", 2),
-                null,
-                FluidUtils.getFluidStack("nitrofuel", 3000),
-                ItemUtils.getItemStackOfAmountFromOreDict("cellEmpty", 11),
-                300,
-                1000);
-    }
 
     public static void recipeCreateEthylene() {
 
@@ -81,16 +69,9 @@ public class CoalTar extends ItemPackage {
 
     public static void recipeCreateBenzene() {
         // C7H8 + 2H = CH4 + C6H6
-        CORE.RA.addDehydratorRecipe(
-                new ItemStack[] { ItemUtils.getItemStackOfAmountFromOreDict("cellToluene", 1),
-                        ItemUtils.getItemStackOfAmountFromOreDict("cellHydrogen", 2) },
-                null,
-                null,
-                new ItemStack[] { ItemUtils.getItemStackOfAmountFromOreDict("cellMethane", 1),
-                        ItemUtils.getItemStackOfAmountFromOreDict("cellBenzene", 1), Materials.Empty.getCells(1) },
-                new int[] { 10000, 10000, 10000 },
-                20 * 10,
-                90);
+        GT_Values.RA.stdBuilder().itemInputs(Materials.Toluene.getCells(1)).itemOutputs(Materials.Benzene.getCells(1))
+                .fluidInputs(Materials.Hydrogen.getGas(2000)).fluidOutputs(Materials.Methane.getGas(1000))
+                .duration(10 * SECONDS).eut(90).noOptimize().addTo(chemicalDehydratorRecipes);
     }
 
     public static void recipeCreateEthylbenzene() {
@@ -154,60 +135,19 @@ public class CoalTar extends ItemPackage {
     }
 
     private static void recipeCoalTarToCoalTarOil() {
-        // v - Distill (60% Tar oil/15% Naphtha/20% Ethylbenzene/5% Anthracene)
+        // v - Distill (60% Tar oil/15% Naphtha/20% Ethylbenzene/5% Anthracene) +60% Kerosene
         // Create Coal Tar Oil
-        GT_Values.RA.addDistilleryRecipe(
-                CI.getNumberedCircuit(1), // Circuit
-                FluidUtils.getFluidStack("fluid.coaltar", 1000), // aInput
-                FluidUtils.getFluidStack("fluid.coaltaroil", 600), // aOutput
-                600, // aDuration
-                64, // aEUt
-                false // Hidden?
-        );
-        GT_Values.RA.addDistilleryRecipe(
-                CI.getNumberedCircuit(2), // Circuit
-                FluidUtils.getFluidStack("fluid.coaltar", 1000), // aInput
-                FluidUtils.getFluidStack("liquid_naphtha", 150), // aOutput
-                300, // aDuration
-                30, // aEUt
-                false // Hidden?
-        );
-        GT_Values.RA.addDistilleryRecipe(
-                CI.getNumberedCircuit(3), // Circuit
-                FluidUtils.getFluidStack("fluid.coaltar", 1000), // aInput
-                FluidUtils.getFluidStack("fluid.ethylbenzene", 200), // aOutput
-                450, // aDuration
-                86, // aEUt
-                false // Hidden?
-        );
-        GT_Values.RA.addDistilleryRecipe(
-                CI.getNumberedCircuit(4), // Circuit
-                FluidUtils.getFluidStack("fluid.coaltar", 1000), // aInput
-                FluidUtils.getFluidStack("fluid.anthracene", 50), // aOutput
-                900, // aDuration
-                30, // aEUt
-                false // Hidden?
-        );
-        GT_Values.RA.addDistilleryRecipe(
-                CI.getNumberedCircuit(5), // Circuit
-                FluidUtils.getFluidStack("fluid.coaltar", 1500), // aInput
-                FluidUtils.getFluidStack("fluid.kerosene", 600), // aOutput
-                300, // aDuration
-                64, // aEUt
-                false // Hidden?
-        );
 
-        GT_Values.RA.addDistillationTowerRecipe(
-                FluidUtils.getFluidStack("fluid.coaltar", 1200),
-                new FluidStack[] { FluidUtils.getFluidStack("fluid.coaltaroil", 500), // aOutput
-                        FluidUtils.getFluidStack("liquid_naphtha", 100), // aOutput
-                        FluidUtils.getFluidStack("fluid.ethylbenzene", 150), // aOutput
-                        FluidUtils.getFluidStack("fluid.anthracene", 50), // aOutput
-                        FluidUtils.getFluidStack("fluid.kerosene", 400), // aOutput
-                },
-                null,
-                900,
-                60);
+        FluidStack[] distOutputs = new FluidStack[] { FluidUtils.getFluidStack("fluid.coaltaroil", 600),
+                FluidUtils.getFluidStack("liquid_naphtha", 150), FluidUtils.getFluidStack("fluid.ethylbenzene", 200),
+                FluidUtils.getFluidStack("fluid.anthracene", 50), FluidUtils.getFluidStack("fluid.kerosene", 600) };
+        for (int i = 0; i < distOutputs.length; i++) {
+            GT_Values.RA.stdBuilder().itemInputs(GT_Utility.getIntegratedCircuit(i + 1))
+                    .fluidInputs(FluidUtils.getFluidStack("fluid.coaltar", 1000)).fluidOutputs(distOutputs[i])
+                    .duration(30 * SECONDS).eut(64).addTo(distilleryRecipes);
+        }
+        GT_Values.RA.stdBuilder().fluidInputs(FluidUtils.getFluidStack("fluid.coaltar", 1000)).fluidOutputs(distOutputs)
+                .duration(15 * SECONDS).eut(256).addTo(distillationTowerRecipes);
     }
 
     private static void recipeCoalTarOilToSulfuricOilToNaphthalene() {
@@ -231,13 +171,10 @@ public class CoalTar extends ItemPackage {
 
     private static void recipeNaphthaleneToPhthalicAcid() {
         // SulfuricCoalTarOil
-        GT_Values.RA.addChemicalRecipe(
-                ItemUtils.getItemStackOfAmountFromOreDict("cellNaphthalene", 2),
-                ItemUtils.getItemStackOfAmountFromOreDict("dustLithium", 5),
-                null,
-                Materials.PhthalicAcid.getFluid(2500),
-                ItemUtils.getItemStackOfAmountFromOreDict("cellEmpty", 2),
-                20 * 16);
+        GT_Values.RA.stdBuilder().itemInputs(Materials.Lithium.getDust(5))
+                .fluidInputs(FluidUtils.getFluidStack(Naphthalene, 2000))
+                .fluidOutputs(Materials.PhthalicAcid.getFluid(2500)).eut(30).duration(16 * SECONDS).noOptimize()
+                .addTo(UniversalChemical);
     }
 
     private static void recipePhthalicAcidToPhthalicAnhydride() {
@@ -267,8 +204,6 @@ public class CoalTar extends ItemPackage {
         recipeCoalTarOilToSulfuricOilToNaphthalene();
         recipeNaphthaleneToPhthalicAcid();
         recipePhthalicAcidToPhthalicAnhydride();
-
-        recipeEthylBenzineFuelsIntoHeavyFuel();
 
         // Burn the coal gas!
         GT_Values.RA.addFuel(ItemUtils.getItemStackOfAmountFromOreDict("cellCoalGas", 1), null, 96, 1);

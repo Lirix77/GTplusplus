@@ -1,12 +1,13 @@
 package gtPlusPlus.core.item.chemistry;
 
-import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sAssemblerRecipes;
-import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sBlastRecipes;
+import static gregtech.api.recipe.RecipeMaps.assemblerRecipes;
+import static gregtech.api.recipe.RecipeMaps.blastFurnaceRecipes;
 import static gregtech.api.util.GT_RecipeBuilder.MINUTES;
 import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
 import static gregtech.api.util.GT_RecipeConstants.COIL_HEAT;
 import static gregtech.api.util.GT_RecipeConstants.FUEL_TYPE;
 import static gregtech.api.util.GT_RecipeConstants.FUEL_VALUE;
+import static gtPlusPlus.api.recipe.GTPPRecipeMaps.chemicalDehydratorRecipes;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -441,7 +442,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Sulfur, 16L))
                 .itemOutputs(GT_OreDictUnificator.get(OrePrefixes.dust, Materials.DarkAsh, 1L))
                 .fluidOutputs(FluidUtils.getFluidStack(Carbon_Disulfide, 4000)).duration(10 * MINUTES)
-                .eut(TierEU.RECIPE_LV).metadata(COIL_HEAT, 1500).addTo(sBlastRecipes);
+                .eut(TierEU.RECIPE_LV).metadata(COIL_HEAT, 1500).addTo(blastFurnaceRecipes);
 
         CORE.RA.addChemicalPlantRecipe(
                 new ItemStack[] { CI.getNumberedCircuit(20), ItemUtils.getSimpleStack(mBrownCatalyst, 0),
@@ -487,7 +488,7 @@ public class GenericChem extends ItemPackage {
                         GT_Utility.getIntegratedCircuit(10))
                 .itemOutputs(ItemUtils.getSimpleStack(mMillingBallAlumina, 8))
                 .fluidInputs(FluidUtils.getFluidStack(GenericChem.Aniline, 4000)).duration(3 * MINUTES)
-                .eut(TierEU.RECIPE_HV).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_HV).addTo(assemblerRecipes);
     }
 
     private void recipeGrindingBallSoapstone() {
@@ -497,7 +498,7 @@ public class GenericChem extends ItemPackage {
                         GT_Utility.getIntegratedCircuit(10))
                 .itemOutputs(ItemUtils.getSimpleStack(mMillingBallSoapstone, 8))
                 .fluidInputs(FluidUtils.getFluidStack(AgrichemFluids.mLiquidResin, 2500)).duration(2 * MINUTES)
-                .eut(TierEU.RECIPE_HV).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_HV).addTo(assemblerRecipes);
     }
 
     private void recipeCyclohexane() {
@@ -546,7 +547,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Iron, 2L),
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Copper, 2L))
                 .itemOutputs(ItemUtils.getSimpleStack(mRedCatalyst, 10)).duration(20 * SECONDS).eut(TierEU.RECIPE_LV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystYellow() {
@@ -558,7 +559,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Tungsten, 4L),
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Nickel, 4L))
                 .itemOutputs(ItemUtils.getSimpleStack(mYellowCatalyst, 10)).duration(1 * MINUTES).eut(TierEU.RECIPE_EV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystBlue() {
@@ -570,7 +571,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Cobalt, 3L),
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Titanium, 3L))
                 .itemOutputs(ItemUtils.getSimpleStack(mBlueCatalyst, 10)).duration(40 * SECONDS).eut(TierEU.RECIPE_HV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystOrange() {
@@ -582,7 +583,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Vanadium, 5L),
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Palladium, 5L))
                 .itemOutputs(ItemUtils.getSimpleStack(mOrangeCatalyst, 10)).duration(40 * SECONDS).eut(TierEU.RECIPE_HV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystPurple() {
@@ -594,7 +595,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Iridium, 6L),
                         ELEMENT.getInstance().RUTHENIUM.getDust(6))
                 .itemOutputs(ItemUtils.getSimpleStack(mPurpleCatalyst, 10)).duration(2 * MINUTES).eut(TierEU.RECIPE_IV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystBrown() {
@@ -606,7 +607,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Nickel, 4L),
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Aluminium, 4L))
                 .itemOutputs(ItemUtils.getSimpleStack(mBrownCatalyst, 10)).duration(15 * SECONDS).eut(TierEU.RECIPE_LV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystPink() {
@@ -618,7 +619,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Platinum, 4L),
                         ELEMENT.getInstance().RHODIUM.getDust(4))
                 .itemOutputs(ItemUtils.getSimpleStack(mPinkCatalyst, 10)).duration(30 * SECONDS).eut(TierEU.RECIPE_EV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private void recipeCatalystFormaldehyde() {
@@ -629,7 +630,7 @@ public class GenericChem extends ItemPackage {
                         CI.getEmptyCatalyst(4),
                         ItemUtils.getSimpleStack(RocketFuels.Formaldehyde_Catalyst_Dust, 8))
                 .itemOutputs(ItemUtils.getSimpleStack(mFormaldehydeCatalyst, 4)).duration(30 * SECONDS)
-                .eut(TierEU.RECIPE_HV / 2).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_HV / 2).addTo(assemblerRecipes);
     }
 
     private void recipeCatalystSolidAcid() {
@@ -641,7 +642,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Lapis, 2L))
                 .itemOutputs(ItemUtils.getSimpleStack(GenericChem.mSolidAcidCatalyst, 5))
                 .fluidInputs(MISC_MATERIALS.SOLID_ACID_MIXTURE.getFluidStack(1000)).duration(30 * SECONDS)
-                .eut(TierEU.RECIPE_EV).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_EV).addTo(assemblerRecipes);
     }
 
     private void recipeCatalystInfiniteMutation() {
@@ -653,7 +654,7 @@ public class GenericChem extends ItemPackage {
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Infinity, 1L),
                         GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Naquadria, 10L))
                 .itemOutputs(ItemUtils.getSimpleStack(GenericChem.mInfiniteMutationCatalyst, 5)).duration(5 * SECONDS)
-                .eut(TierEU.RECIPE_UHV).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_UHV).addTo(assemblerRecipes);
     }
 
     private void recipeCadaverineAndPutrescine() {
@@ -741,16 +742,10 @@ public class GenericChem extends ItemPackage {
 
     private void recipeLithiumPeroxide() {
         // 2HLiO2 = Li2O2 + H2O2
-        CORE.RA.addDehydratorRecipe(
-                new ItemStack[] { ItemUtils.getItemStackOfAmountFromOreDict("dustLithiumHydroperoxide", 8),
-                        ItemUtils.getItemStackOfAmountFromOreDict("cellEmpty", 1) },
-                null,
-                null,
-                new ItemStack[] { ItemUtils.getItemStackOfAmountFromOreDict("dustLithiumPeroxide", 4),
-                        ItemUtils.getItemStackOfAmountFromOreDict("cellHydrogenPeroxide", 1), },
-                new int[] { 10000, 10000 },
-                20 * 100,
-                120);
+        GT_Values.RA.stdBuilder().itemInputs(ItemUtils.getItemStackOfAmountFromOreDict("dustLithiumHydroperoxide", 8))
+                .fluidOutputs(FluidUtils.getFluidStack("fluid.hydrogenperoxide", 1000))
+                .itemOutputs(ItemUtils.getItemStackOfAmountFromOreDict("dustLithiumPeroxide", 4))
+                .duration(100 * SECONDS).eut(120).noOptimize().addTo(chemicalDehydratorRecipes);
     }
 
     private void recipeLithiumHydroperoxide() {

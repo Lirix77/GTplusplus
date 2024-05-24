@@ -1,6 +1,5 @@
 package gtPlusPlus.core.util.minecraft;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChunkCoordinates;
@@ -36,6 +34,12 @@ public class PlayerUtils {
         }
     }
 
+    public static List<EntityPlayerMP> getOnlinePlayers() {
+        final List<EntityPlayerMP> onlinePlayers = MinecraftServer.getServer()
+                .getConfigurationManager().playerEntityList;
+        return onlinePlayers;
+    }
+
     public static void messagePlayer(final EntityPlayer P, final String S) {
         gregtech.api.util.GT_Utility.sendChatToPlayer(P, S);
     }
@@ -46,17 +50,12 @@ public class PlayerUtils {
 
     public static EntityPlayer getPlayer(final String name) {
         try {
-            final List<EntityPlayer> i = new ArrayList<>();
-            for (EntityPlayerMP playerMP : (Iterable<EntityPlayerMP>) MinecraftServer.getServer()
-                    .getConfigurationManager().playerEntityList) {
-                i.add(playerMP);
-            }
-            for (final EntityPlayer temp : i) {
-                if (temp.getDisplayName().toLowerCase().equals(name.toLowerCase())) {
+            for (final EntityPlayer temp : getOnlinePlayers()) {
+                if (temp.getDisplayName().equalsIgnoreCase(name)) {
                     return temp;
                 }
             }
-        } catch (final Throwable e) {}
+        } catch (final Throwable ignored) {}
         return null;
     }
 
@@ -64,26 +63,11 @@ public class PlayerUtils {
         if (parUUID == null) {
             return null;
         }
-        final List<EntityPlayerMP> allPlayers = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-        for (final EntityPlayerMP player : allPlayers) {
+        for (final EntityPlayerMP player : getOnlinePlayers()) {
             if (player.getUniqueID().equals(parUUID)) {
                 return player;
             }
         }
-        return null;
-    }
-
-    // Not Clientside
-    public static EntityPlayer getPlayerInWorld(final World world, final String Name) {
-        final List<EntityPlayer> i = world.playerEntities;
-        final Minecraft mc = Minecraft.getMinecraft();
-        try {
-            for (final EntityPlayer temp : i) {
-                if (temp.getDisplayName().toLowerCase().equals(Name.toLowerCase())) {
-                    return temp;
-                }
-            }
-        } catch (final NullPointerException e) {}
         return null;
     }
 
@@ -112,7 +96,7 @@ public class PlayerUtils {
     @SideOnly(Side.CLIENT)
     public static ItemStack getItemStackInPlayersHand() {
         final Minecraft mc = Minecraft.getMinecraft();
-        ItemStack heldItem = null;
+        ItemStack heldItem;
         try {
             heldItem = mc.thePlayer.getHeldItem();
         } catch (final NullPointerException e) {
@@ -125,7 +109,7 @@ public class PlayerUtils {
     }
 
     public static ItemStack getItemStackInPlayersHand(final EntityPlayer player) {
-        ItemStack heldItem = null;
+        ItemStack heldItem;
         try {
             heldItem = player.getHeldItem();
         } catch (final NullPointerException e) {
@@ -142,46 +126,6 @@ public class PlayerUtils {
             }
         }
         return heldItem;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static Item getItemInPlayersHandClient() {
-        final Minecraft mc = Minecraft.getMinecraft();
-        Item heldItem = null;
-
-        try {
-            heldItem = mc.thePlayer.getHeldItem().getItem();
-        } catch (final NullPointerException e) {
-            return null;
-        }
-
-        if (heldItem != null) {
-            return heldItem;
-        }
-
-        return null;
-    }
-
-    public static Item getItemInPlayersHand(final EntityPlayer player) {
-        Item heldItem = null;
-        try {
-            heldItem = player.getHeldItem().getItem();
-        } catch (final NullPointerException e) {
-            return null;
-        }
-
-        if (heldItem != null) {
-            return heldItem;
-        }
-        return null;
-    }
-
-    public static final EntityPlayer getPlayerEntityByName(final String aPlayerName) {
-        final EntityPlayer player = PlayerUtils.getPlayer(aPlayerName);
-        if (player != null) {
-            return player;
-        }
-        return null;
     }
 
     public static final UUID getPlayersUUIDByName(final String aPlayerName) {

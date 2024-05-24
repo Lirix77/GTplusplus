@@ -18,6 +18,7 @@ import gregtech.api.util.GT_Utility;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
+import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
 @SuppressWarnings("deprecation")
 public class GT_MTE_LargeTurbine_SHSteam extends GregtechMetaTileEntity_LargerTurbineBase {
@@ -64,7 +65,7 @@ public class GT_MTE_LargeTurbine_SHSteam extends GregtechMetaTileEntity_LargerTu
     }
 
     @Override
-    int fluidIntoPower(ArrayList<FluidStack> aFluids, long aOptFlow, int aBaseEff, float[] flowMultipliers) {
+    long fluidIntoPower(ArrayList<FluidStack> aFluids, long aOptFlow, int aBaseEff, float[] flowMultipliers) {
         if (looseFit) {
             aOptFlow *= 4;
             if (aBaseEff > 10000) {
@@ -77,13 +78,17 @@ public class GT_MTE_LargeTurbine_SHSteam extends GregtechMetaTileEntity_LargerTu
                 aBaseEff *= 0.75f;
             }
         }
-        int tEU = 0;
+        // prevent overflow like that in SC Steam
+        long tEU = 0;
         int totalFlow = 0; // Byproducts are based on actual flow
         int flow = 0;
-        int remainingFlow = MathUtils.safeInt((long) (aOptFlow * 1.25f)); // Allowed to use up to 125% of optimal flow.
-                                                                          // Variable required outside of loop for
+
+        // Variable required outside of loop for
         // multi-hatch scenarios.
-        this.realOptFlow = (double) aOptFlow * (double) flowMultipliers[0];
+        this.realOptFlow = aOptFlow * flowMultipliers[0];
+
+        int remainingFlow = MathUtils.safeInt((long) (realOptFlow * 1.25f)); // Allowed to use up to
+        // 125% of optimal flow.
 
         storedFluid = 0;
         for (int i = 0; i < aFluids.size() && remainingFlow > 0; i++) {
@@ -111,13 +116,13 @@ public class GT_MTE_LargeTurbine_SHSteam extends GregtechMetaTileEntity_LargerTu
         if (totalFlow <= 0) return 0;
         tEU = totalFlow;
         addOutput(GT_ModHandler.getSteam(totalFlow));
-        if (totalFlow != aOptFlow) {
-            float efficiency = 1.0f - Math.abs((totalFlow - aOptFlow) / (float) aOptFlow);
+        if (totalFlow != realOptFlow) {
+            float efficiency = 1.0f - Math.abs((totalFlow - (float) realOptFlow) / (float) realOptFlow);
             // if(totalFlow>aOptFlow){efficiency = 1.0f;}
             tEU *= efficiency;
-            tEU = Math.max(1, MathUtils.safeInt((long) tEU * (long) aBaseEff / 10000L));
+            tEU = Math.max(1L, tEU * aBaseEff / 10000L);
         } else {
-            tEU = MathUtils.safeInt((long) tEU * (long) aBaseEff / 10000L);
+            tEU = tEU * aBaseEff / 10000L;
         }
 
         return tEU;
@@ -184,11 +189,11 @@ public class GT_MTE_LargeTurbine_SHSteam extends GregtechMetaTileEntity_LargerTu
 
     @Override
     protected ITexture getTextureFrontFace() {
-        return new GT_RenderedTexture(gregtech.api.enums.Textures.BlockIcons.LARGETURBINE_TI5);
+        return new GT_RenderedTexture(TexturesGtBlock.Overlay_Machine_Controller_Advanced);
     }
 
     @Override
     protected ITexture getTextureFrontFaceActive() {
-        return new GT_RenderedTexture(gregtech.api.enums.Textures.BlockIcons.LARGETURBINE_TI_ACTIVE5);
+        return new GT_RenderedTexture(TexturesGtBlock.Overlay_Machine_Controller_Advanced_Active);
     }
 }

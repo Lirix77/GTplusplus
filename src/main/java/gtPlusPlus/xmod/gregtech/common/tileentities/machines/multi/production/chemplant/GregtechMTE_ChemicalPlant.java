@@ -14,17 +14,18 @@ import static gregtech.api.util.GT_StructureUtility.ofCoil;
 import static gregtech.api.util.GT_Utility.filterValidMTEs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -53,16 +54,17 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Maint
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_TieredMachineBlock;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
-import gregtech.api.util.GTPP_Recipe;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
-import gregtech.api.util.GT_ParallelHelper;
 import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
+import gregtech.common.tileentities.machines.IDualInputHatch;
 import gtPlusPlus.api.objects.data.AutoMap;
 import gtPlusPlus.api.objects.data.Triplet;
+import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.item.chemistry.general.ItemGenericChemBase;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.recipe.common.CI;
@@ -337,6 +339,7 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
         mMachineCasingTier = 0;
         mPipeCasingTier = 0;
         mCoilTier = 0;
+        maxTierOfHatch = 0;
         mCatalystBuses.clear();
         setCoilMeta(HeatingCoilLevel.None);
         if (checkPiece(mName, 3, 6, 0) && mCasing >= 70) {
@@ -350,13 +353,14 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
             mCoilTier = checkCoil.getTier();
             getBaseMetaTileEntity().sendBlockEvent(GregTechTileClientEvents.CHANGE_CUSTOM_DATA, getUpdateData());
             updateHatchTexture();
-            return mMachineCasingTier >= 9 || mMachineCasingTier >= maxTierOfHatch;
+            return (mMachineCasingTier >= 9 || mMachineCasingTier >= maxTierOfHatch) && mCatalystBuses.size() <= 1;
         }
         return false;
     }
 
     public void updateHatchTexture() {
         for (GT_MetaTileEntity_Hatch h : mCatalystBuses) h.updateTexture(getCasingTextureID());
+        for (IDualInputHatch h : mDualInputHatches) h.updateTexture(getCasingTextureID());
         for (GT_MetaTileEntity_Hatch h : mInputBusses) h.updateTexture(getCasingTextureID());
         for (GT_MetaTileEntity_Hatch h : mMaintenanceHatches) h.updateTexture(getCasingTextureID());
         for (GT_MetaTileEntity_Hatch h : mEnergyHatches) h.updateTexture(getCasingTextureID());
@@ -415,8 +419,8 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
     }
 
     @Override
-    public GT_Recipe.GT_Recipe_Map getRecipeMap() {
-        return GTPP_Recipe.GTPP_Recipe_Map.sChemicalPlantRecipes;
+    public RecipeMap<?> getRecipeMap() {
+        return GTPPRecipeMaps.chemicalPlantRecipes;
     }
 
     @Override
@@ -505,23 +509,8 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
         return false;
     }
 
-    // Same speed bonus as pyro oven
-    public int getSpeedBonus() {
-        return 50 * (this.mCoilTier + 1);
-    }
-
     public int getMaxCatalystDurability() {
         return 50;
-    }
-
-    @Override
-    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        if (aBaseMetaTileEntity.isServerSide()) {
-            if (this.mUpdate == 1 || this.mStartUpCheck == 1) {
-                this.mCatalystBuses.clear();
-            }
-        }
-        super.onPostTick(aBaseMetaTileEntity, aTick);
     }
 
     @Override
@@ -539,7 +528,7 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
         }
     }
 
-    private void damageCatalyst(ItemStack aStack, int minParallel) {
+    private void damageCatalyst(@Nonnull ItemStack aStack, int minParallel) {
         // Awakened Draconium Coils with Tungstensteel Pipe Casings (or above) no longer consume catalysts.
         if (!isCatalystDamageable()) return;
         for (int i = 0; i < minParallel; i++) {
@@ -548,6 +537,7 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
                 if (damage >= getMaxCatalystDurability()) {
                     addOutput(CI.getEmptyCatalyst(1));
                     aStack.stackSize -= 1;
+                    return;
                 } else {
                     setDamage(aStack, damage);
                 }
@@ -563,65 +553,48 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic() {
 
-            ItemStack catalystRecipe;
-            int maxParallelCatalyst;
+            ItemStack catalyst;
 
             @NotNull
             @Override
             protected CheckRecipeResult validateRecipe(@NotNull GT_Recipe recipe) {
                 if (recipe.mSpecialValue > mSolidCasingTier) {
-                    return CheckRecipeResultRegistry.insufficientMachineTier(recipe.mSpecialValue);
+                    return CheckRecipeResultRegistry.insufficientMachineTier(recipe.mSpecialValue + 1);
                 }
                 // checks if it has a catalyst
-
-                boolean needsCalayst = false;
+                ItemStack catalystInRecipe = null;
                 for (ItemStack item : recipe.mInputs) {
                     if (ItemUtils.isCatalyst(item)) {
-                        needsCalayst = true;
+                        catalystInRecipe = item;
                         break;
                     }
                 }
-                if (needsCalayst) {
-                    catalystRecipe = findCatalyst(inputItems, recipe.mInputs);
-                    if (catalystRecipe == null || mCatalystBuses.size() != 1) {
+
+                if (catalystInRecipe != null) {
+                    catalyst = findCatalyst(getCatalystInputs().toArray(new ItemStack[0]), catalystInRecipe);
+                    if (catalyst == null) {
                         return SimpleCheckRecipeResult.ofFailure("no_catalyst");
                     }
-                } else {
-                    catalystRecipe = null;
                 }
-
-                // checks if it has enough catalyst durability
-                maxParallelCatalyst = maxParallel;
-                if (catalystRecipe != null) {
-                    maxParallelCatalyst = getCatalysts(inputItems, catalystRecipe, maxParallel);
-                }
-                maxParallel = Math.min(maxParallel, maxParallelCatalyst);
                 return CheckRecipeResultRegistry.SUCCESSFUL;
             }
 
             @NotNull
             @Override
-            protected GT_ParallelHelper createParallelHelper(@NotNull GT_Recipe recipe) {
-                return new GT_ParallelHelper() {
+            public CheckRecipeResult process() {
+                ArrayList<ItemStack> inputItemsList = new ArrayList<>(Arrays.asList(inputItems));
+                inputItemsList.addAll(getCatalystInputs());
+                inputItems = inputItemsList.toArray(new ItemStack[0]);
+                return super.process();
+            }
 
-                    @Override
-                    protected boolean tryConsumeRecipeInputs(GT_Recipe recipe, FluidStack[] fluids, ItemStack[] items,
-                            int minParallel) {
-                        if (catalystRecipe != null && getDamage(catalystRecipe) >= getMaxCatalystDurability()) {
-                            return false;
-                        }
-                        boolean hasInputs = super.tryConsumeRecipeInputs(recipe, fluids, items, minParallel);
-                        if (hasInputs && catalystRecipe != null) {
-                            damageCatalyst(catalystRecipe, minParallel);
-                        }
-                        return hasInputs;
-                    }
-                }.setRecipe(recipe).setItemInputs(inputItems).setFluidInputs(inputFluids)
-                        .setAvailableEUt(availableVoltage * availableAmperage)
-                        .setMachine(machine, protectItems, protectFluids)
-                        .setRecipeLocked(recipeLockableMachine, isRecipeLocked).setMaxParallel(maxParallel)
-                        .setEUtModifier(euModifier).enableBatchMode(batchSize).setConsumption(true)
-                        .setOutputCalculation(true);
+            @NotNull
+            @Override
+            protected CheckRecipeResult onRecipeStart(@NotNull GT_Recipe recipe) {
+                if (catalyst != null) {
+                    damageCatalyst(catalyst, getCurrentParallels());
+                }
+                return super.onRecipeStart(recipe);
             }
         }.setMaxParallelSupplier(this::getMaxParallelRecipes);
     }
@@ -629,7 +602,8 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
     @Override
     protected void setupProcessingLogic(ProcessingLogic logic) {
         super.setupProcessingLogic(logic);
-        logic.setSpeedBonus(100F / (100F + getSpeedBonus()));
+        // Same speed bonus as pyro oven
+        logic.setSpeedBonus(2F / (1 + this.mCoilTier));
     }
 
     @Override
@@ -641,56 +615,31 @@ public class GregtechMTE_ChemicalPlant extends GregtechMeta_MultiBlockBase<Gregt
         }
     }
 
-    private int getCatalysts(ItemStack[] aItemInputs, ItemStack aRecipeCatalyst, int aMaxParallel) {
-        if (!isCatalystDamageable()) {
-            return getMaxParallelRecipes();
-        }
-        int allowedParallel = 0;
-        for (final ItemStack aInput : aItemInputs) {
-            if (aRecipeCatalyst.isItemEqual(aInput)) {
-                int aDurabilityRemaining = getMaxCatalystDurability() - getDamage(aInput);
-                return Math.min(aMaxParallel, aDurabilityRemaining);
-            }
-        }
-        return allowedParallel;
-    }
-
-    private ItemStack findCatalyst(ItemStack[] aItemInputs, ItemStack[] aRecipeInputs) {
+    private ItemStack findCatalyst(ItemStack[] aItemInputs, ItemStack catalyst) {
         if (aItemInputs != null) {
-            for (final ItemStack aInput : aItemInputs) {
-                if (aInput != null) {
-                    if (ItemUtils.isCatalyst(aInput)) {
-                        for (ItemStack aRecipeInput : aRecipeInputs) {
-                            if (GT_Utility.areStacksEqual(aRecipeInput, aInput, true)) {
-                                return aInput;
-                            }
-                        }
-                    }
+            for (ItemStack item : aItemInputs) {
+                if (GT_Utility.areStacksEqual(item, catalyst, true)) {
+                    return item;
                 }
             }
         }
         return null;
     }
 
-    private int getDamage(ItemStack aStack) {
+    private int getDamage(@Nonnull ItemStack aStack) {
         return ItemGenericChemBase.getCatalystDamage(aStack);
     }
 
-    private void setDamage(ItemStack aStack, int aAmount) {
+    private void setDamage(@Nonnull ItemStack aStack, int aAmount) {
         ItemGenericChemBase.setCatalystDamage(aStack, aAmount);
     }
 
     /*
      * Catalyst Handling
      */
-    @Override
-    public ArrayList<ItemStack> getStoredInputs() {
-        ArrayList<ItemStack> tItems = super.getStoredInputs();
-        if (this.getControllerSlot() != null) {
-            tItems.add(this.getControllerSlot());
-        }
+    public ArrayList<ItemStack> getCatalystInputs() {
+        ArrayList<ItemStack> tItems = new ArrayList<>();
         for (GT_MetaTileEntity_Hatch_Catalysts tHatch : filterValidMTEs(mCatalystBuses)) {
-            tHatch.mRecipeMap = getRecipeMap();
             AutoMap<ItemStack> aHatchContent = tHatch.getContentUsageSlots();
             if (!aHatchContent.isEmpty()) {
                 tItems.addAll(aHatchContent);
