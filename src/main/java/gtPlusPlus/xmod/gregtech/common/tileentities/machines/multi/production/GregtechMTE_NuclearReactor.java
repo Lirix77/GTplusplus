@@ -37,15 +37,16 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Maint
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Muffler;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.objects.GT_ItemStack;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GTPP_Recipe.GTPP_Recipe_Map;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_OverclockCalculator;
 import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_Recipe.GT_Recipe_Map;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.material.ELEMENT;
@@ -80,8 +81,8 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
     }
 
     @Override
-    public GT_Recipe_Map getRecipeMap() {
-        return GTPP_Recipe_Map.sLiquidFluorineThoriumReactorRecipes;
+    public RecipeMap<?> getRecipeMap() {
+        return GTPPRecipeMaps.liquidFluorineThoriumReactorRecipes;
     }
 
     @Override
@@ -101,7 +102,7 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
                 .addDynamoHatch("Top or bottom layer edges", 1).addMaintenanceHatch("Top or bottom layer edges", 1)
                 .addMufflerHatch("Top 3x3", 2).addStructureInfo("All dynamos must be between EV and LuV tier.")
                 .addStructureInfo("All other hatches must be IV+ tier.")
-                .addStructureInfo("4x Output Hatches, 2x Input Hatches, 4x Dynamo Hatches")
+                .addStructureInfo("4x Output Hatches or 1x Output Hatch (ME), 1+ Input Hatches, 4x Dynamo Hatches")
                 .addStructureInfo("2x Maintenance Hatches, 4x Mufflers").toolTipFinisher(CORE.GT_Tooltip_Builder.get());
         return tt;
     }
@@ -156,17 +157,17 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
             IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
             if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Maintenance) {
                 return addToMachineList(aTileEntity, aBaseCasingIndex);
-            } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Dynamo
-                    && (((GT_MetaTileEntity_Hatch_Dynamo) aMetaTileEntity).mTier >= 4
-                            && ((GT_MetaTileEntity_Hatch_Dynamo) aMetaTileEntity).mTier <= 6)) {
-                                return addToMachineList(aTileEntity, aBaseCasingIndex);
-                            } else
-                if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Input
-                        && ((GT_MetaTileEntity_Hatch_Input) aMetaTileEntity).mTier >= 5) {
+            } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Dynamo dynamo
+                    && dynamo.getTierForStructure() >= 4
+                    && dynamo.getTierForStructure() <= 6) {
+                        return addToMachineList(aTileEntity, aBaseCasingIndex);
+                    } else
+                if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Input hatch
+                        && hatch.getTierForStructure() >= 5) {
                             return addToMachineList(aTileEntity, aBaseCasingIndex);
                         } else
-                    if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Output
-                            && ((GT_MetaTileEntity_Hatch_Output) aMetaTileEntity).mTier >= 5) {
+                    if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Output hatch
+                            && hatch.getTierForStructure() >= 5) {
                                 return addToMachineList(aTileEntity, aBaseCasingIndex);
                             }
         }
@@ -178,8 +179,7 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
             return false;
         } else {
             IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
-            if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Muffler
-                    && ((GT_MetaTileEntity_Hatch_Muffler) aMetaTileEntity).mTier >= 5) {
+            if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Muffler hatch && hatch.getTierForStructure() >= 5) {
                 return addToMachineList(aTileEntity, aBaseCasingIndex);
             }
         }
@@ -239,16 +239,11 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         mCasing = 0;
         if (checkPiece(mName, 3, 3, 0) && mCasing >= 27) {
-            if (mOutputHatches.size() >= 3 && mInputHatches.size() >= 2
+            if ((mOutputHatches.size() >= 3 || canDumpFluidToME()) && mInputHatches.size() >= 1
                     && mDynamoHatches.size() == 4
                     && mMufflerHatches.size() == 4
                     && mMaintenanceHatches.size() == 2) {
-                this.mWrench = true;
-                this.mScrewdriver = true;
-                this.mSoftHammer = true;
-                this.mHardHammer = true;
-                this.mSolderingTool = true;
-                this.mCrowbar = true;
+                fixAllMaintenanceIssue();
                 this.turnCasingActive(false);
                 return true;
             }
@@ -328,27 +323,6 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
         return true;
     }
 
-    public int getStoredFuel(GT_Recipe aRecipe) {
-        int aFuelStored = 0;
-        FluidStack aFuelFluid = null;
-        for (FluidStack aFluidInput : aRecipe.mFluidInputs) {
-            if (!aFluidInput.getFluid().equals(NUCLIDE.Li2BeF4.getFluid())) {
-                aFuelFluid = aFluidInput;
-                break;
-            }
-        }
-        if (aFuelFluid != null) {
-            for (GT_MetaTileEntity_Hatch_Input aInputHatch : this.mInputHatches) {
-                if (aInputHatch.getFluid() != null && aInputHatch.getFluidAmount() > 0) {
-                    if (aInputHatch.getFluid().isFluidEqual(aFuelFluid)) {
-                        aFuelStored += aInputHatch.getFluidAmount();
-                    }
-                }
-            }
-        }
-        return aFuelStored;
-    }
-
     @Override
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic() {
@@ -372,15 +346,29 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
             @NotNull
             @Override
             protected CheckRecipeResult validateRecipe(@NotNull GT_Recipe recipe) {
-                mFuelRemaining = getStoredFuel(recipe);
+                mFuelRemaining = 0;
+                int li2bef4 = 0;
+                FluidStack aFuelFluid = null;
+                for (FluidStack aFluidInput : recipe.mFluidInputs) {
+                    if (!aFluidInput.getFluid().equals(NUCLIDE.Li2BeF4.getFluid())) {
+                        aFuelFluid = aFluidInput;
+                        break;
+                    }
+                }
+                if (aFuelFluid != null) {
+                    for (FluidStack fluidStack : getStoredFluids()) {
+                        if (fluidStack.isFluidEqual(aFuelFluid)) {
+                            mFuelRemaining += fluidStack.amount;
+                        } else if (fluidStack.getFluid().equals(NUCLIDE.Li2BeF4.getFluid())) {
+                            li2bef4 += fluidStack.amount;
+                        }
+                    }
+                }
                 if (mFuelRemaining < 100) {
                     return CheckRecipeResultRegistry.NO_FUEL_FOUND;
                 }
-                for (GT_MetaTileEntity_Hatch_Input aInputHatch : mInputHatches) {
-                    if (aInputHatch.getFluid().getFluid().equals(NUCLIDE.Li2BeF4.getFluid())
-                            && aInputHatch.getFluidAmount() < 200) {
-                        return SimpleCheckRecipeResult.ofFailure("no_li2bef4");
-                    }
+                if (li2bef4 < 200) {
+                    return SimpleCheckRecipeResult.ofFailure("no_li2bef4");
                 }
                 return CheckRecipeResultRegistry.SUCCESSFUL;
             }
@@ -390,7 +378,7 @@ public class GregtechMTE_NuclearReactor extends GregtechMeta_MultiBlockBase<Greg
     protected void resetMultiProcessing() {
         this.mEfficiency = 0;
         this.mLastRecipe = null;
-        stopMachine();
+        stopMachine(ShutDownReasonRegistry.NONE);
     }
 
     @Override

@@ -4,12 +4,15 @@ import static gregtech.api.enums.Mods.BartWorks;
 import static gregtech.api.enums.Mods.EternalSingularity;
 import static gregtech.api.enums.Mods.GoodGenerator;
 import static gregtech.api.util.GT_ModHandler.getModItem;
+import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
+import static gregtech.api.util.GT_RecipeBuilder.TICKS;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.github.bartimaeusnek.bartworks.system.material.WerkstoffLoader;
 import com.github.technus.tectech.recipe.TT_recipeAdder;
+import com.github.technus.tectech.thing.block.QuantumGlassBlock;
 
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -317,6 +320,23 @@ public class RecipeLoader_ChemicalSkips {
                 30 * 20,
                 (int) TierEU.RECIPE_UHV,
                 1_000_000_000);
+
+        // MK5 versions
+        GT_Values.RA.addFusionReactorRecipe(
+                new FluidStack[] { new FluidStack(ELEMENT.getInstance().XENON.getPlasma(), 288),
+                        Materials.Yttrium.getMolten(288) },
+                new FluidStack[] { new FluidStack(ELEMENT.getInstance().NEPTUNIUM.getPlasma(), 288) },
+                1 * SECONDS + 12 * TICKS,
+                (int) TierEU.RECIPE_UEV,
+                1_000_000_000);
+
+        GT_Values.RA.addFusionReactorRecipe(
+                new FluidStack[] { new FluidStack(ELEMENT.STANDALONE.FORCE.getPlasma(), 288),
+                        Materials.Rubidium.getMolten(288) },
+                new FluidStack[] { new FluidStack(ELEMENT.getInstance().FERMIUM.getPlasma(), 288) },
+                1 * SECONDS + 12 * TICKS,
+                (int) TierEU.RECIPE_UEV,
+                1_000_000_000);
     }
 
     private static void catalystRecipes() {
@@ -607,5 +627,14 @@ public class RecipeLoader_ChemicalSkips {
                 GregtechItemList.SpaceTimeBendingCore.get(1),
                 120 * 20,
                 (int) TierEU.RECIPE_UXV);
+
+        GT_Values.RA.addAssemblerRecipe(
+                new ItemStack[] { new ItemStack(QuantumGlassBlock.INSTANCE, 1), ItemList.Field_Generator_ZPM.get(1),
+                        ELEMENT.STANDALONE.CELESTIAL_TUNGSTEN.getLongRod(6),
+                        ELEMENT.STANDALONE.CHRONOMATIC_GLASS.getPlate(6) },
+                ALLOY.QUANTUM.getFluidStack(144 * 6),
+                GregtechItemList.ForceFieldGlass.get(1),
+                10 * 20,
+                (int) TierEU.RECIPE_UEV);
     }
 }

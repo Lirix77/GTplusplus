@@ -2,7 +2,7 @@ package gtPlusPlus.core.recipe;
 
 import static gregtech.api.enums.Mods.EnderIO;
 import static gregtech.api.enums.Mods.Thaumcraft;
-import static gregtech.api.util.GT_Recipe.GT_Recipe_Map.sAssemblerRecipes;
+import static gregtech.api.recipe.RecipeMaps.assemblerRecipes;
 import static gregtech.api.util.GT_RecipeBuilder.MINUTES;
 import static gregtech.api.util.GT_RecipeBuilder.SECONDS;
 import static gtPlusPlus.core.recipe.common.CI.bitsd;
@@ -46,10 +46,7 @@ public class RECIPES_General {
     static String RECIPE_LapisDust = "dustLazurite";
     static ItemStack OUTPUT_Blueprint;
     static ItemStack RECIPE_CraftingTable;
-    static String RECIPE_BronzePlate = "plateBronze";
-    static String RECIPE_StainlessPlate = "plateStainlessSteel";
     static ItemStack RECIPE_BasicCasingIC2;
-    static ItemStack RECIPE_HydrogenDust;
 
     public static void loadRecipes() {
         RECIPE_Paper = ItemUtils.getSimpleStack(Items.paper);
@@ -57,7 +54,6 @@ public class RECIPES_General {
         RECIPE_Snow = ItemUtils.getSimpleStack(Blocks.snow);
         RECIPE_Obsidian = ItemUtils.getSimpleStack(Blocks.obsidian);
         RECIPE_CraftingTable = ItemUtils.getSimpleStack(Blocks.crafting_table);
-        RECIPE_HydrogenDust = ItemUtils.getSimpleStack(ModItems.itemHydrogenBlob);
         RECIPE_BasicCasingIC2 = ItemUtils.getItemStackFromFQRN("IC2:blockMachine", 1);
         OUTPUT_Blueprint = ItemUtils.getSimpleStack(ModItems.itemBlueprintBase, 2);
         run();
@@ -177,7 +173,7 @@ public class RECIPES_General {
                         CI.getNumberedAdvancedCircuit(4))
                 .itemOutputs(VolumetricFlaskHelper.getLargeVolumetricFlask(2))
                 .fluidInputs(FluidUtils.getFluidStack("molten.borosilicateglass", 2000)).duration(15 * SECONDS)
-                .eut(TierEU.RECIPE_HV).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_HV).addTo(assemblerRecipes);
 
         GT_Values.RA.stdBuilder()
                 .itemInputs(
@@ -187,7 +183,7 @@ public class RECIPES_General {
                         CI.getNumberedAdvancedCircuit(5))
                 .itemOutputs(VolumetricFlaskHelper.getGiganticVolumetricFlask(2))
                 .fluidInputs(FluidUtils.getFluidStack("molten.borosilicateglass", 8000)).duration(15 * SECONDS)
-                .eut(TierEU.RECIPE_IV).addTo(sAssemblerRecipes);
+                .eut(TierEU.RECIPE_IV).addTo(assemblerRecipes);
 
         // Mining Explosive
         Logger.RECIPE("[Inspection] Explosives");
@@ -256,7 +252,7 @@ public class RECIPES_General {
                         ItemUtils.getSimpleStack(Blocks.gold_block, 32))
                 .itemOutputs(ItemUtils.getSimpleStack(ModItems.itemMagicFeather, 1))
                 .fluidInputs(Materials.Silver.getMolten(32 * 144)).duration(2 * MINUTES).eut(TierEU.RECIPE_EV)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
 
         // Pest Killer
         GT_Values.RA.stdBuilder()
@@ -268,7 +264,7 @@ public class RECIPES_General {
                         CI.getNumberedCircuit(16))
                 .itemOutputs(ItemUtils.getSimpleStack(ModBlocks.blockPestKiller))
                 .fluidInputs(FluidUtils.getHotWater(500)).duration(1 * MINUTES).eut(TierEU.RECIPE_LV / 2)
-                .addTo(sAssemblerRecipes);
+                .addTo(assemblerRecipes);
     }
 
     private static boolean addCompressedObsidian() {

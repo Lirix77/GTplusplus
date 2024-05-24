@@ -28,11 +28,11 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.Materials;
+import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.FishPondFakeRecipe;
-import gregtech.api.util.GTPP_Recipe;
-import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.SemiFluidFuelHandler;
 import gtPlusPlus.api.objects.Logger;
+import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.commands.CommandEnableDebugWhileRunning;
 import gtPlusPlus.core.commands.CommandMath;
 import gtPlusPlus.core.common.CommonProxy;
@@ -44,7 +44,6 @@ import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.material.Material;
 import gtPlusPlus.core.util.Utils;
 import gtPlusPlus.core.util.data.LocaleUtils;
-import gtPlusPlus.nei.NEI_IMC_Sender;
 import gtPlusPlus.plugin.manager.Core_Manager;
 import gtPlusPlus.xmod.gregtech.common.Meta_GT_Proxy;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
@@ -125,9 +124,6 @@ public class GTplusplus implements ActionListener {
         // Tools
         Logger.WARNING("Processing texture: " + TexturesGtTools.ANGLE_GRINDER.getTextureFile().getResourcePath());
         Logger.WARNING("Processing texture: " + TexturesGtTools.ELECTRIC_SNIPS.getTextureFile().getResourcePath());
-        Logger.WARNING("Processing texture: " + TexturesGtTools.ELECTRIC_LIGHTER.getTextureFile().getResourcePath());
-        Logger.WARNING(
-                "Processing texture: " + TexturesGtTools.ELECTRIC_BUTCHER_KNIFE.getTextureFile().getResourcePath());
 
         // Blocks
         Logger.WARNING(
@@ -174,7 +170,6 @@ public class GTplusplus implements ActionListener {
         proxy.registerNetworkStuff();
         Meta_GT_Proxy.init();
         Core_Manager.init();
-        NEI_IMC_Sender.IMCSender();
         // Used by foreign players to generate .lang files for translation.
         if (CORE.ConfigSwitches.dumpItemAndBlockData) {
             LocaleUtils.generateFakeLocaleFile();
@@ -258,27 +253,24 @@ public class GTplusplus implements ActionListener {
         FishPondFakeRecipe.generateFishPondRecipes();
         SemiFluidFuelHandler.generateFuels();
 
-        mInvalidCount[0] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GT_Recipe.GT_Recipe_Map.sCentrifugeRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sMultiblockCentrifugeRecipes_GT);
+        mInvalidCount[0] = RecipeGen_MultisUsingFluidInsteadOfCells
+                .generateRecipesNotUsingCells(RecipeMaps.centrifugeRecipes, GTPPRecipeMaps.centrifugeNonCellRecipes);
         mInvalidCount[1] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GT_Recipe.GT_Recipe_Map.sElectrolyzerRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sMultiblockElectrolyzerRecipes_GT);
-        mInvalidCount[2] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GT_Recipe.GT_Recipe_Map.sVacuumRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sAdvFreezerRecipes_GT);
-        mInvalidCount[3] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GT_Recipe.GT_Recipe_Map.sMixerRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sMultiblockMixerRecipes_GT);
+                RecipeMaps.electrolyzerRecipes,
+                GTPPRecipeMaps.electrolyzerNonCellRecipes);
+        mInvalidCount[2] = RecipeGen_MultisUsingFluidInsteadOfCells
+                .generateRecipesNotUsingCells(RecipeMaps.vacuumFreezerRecipes, GTPPRecipeMaps.advancedFreezerRecipes);
+        mInvalidCount[3] = RecipeGen_MultisUsingFluidInsteadOfCells
+                .generateRecipesNotUsingCells(RecipeMaps.mixerRecipes, GTPPRecipeMaps.mixerNonCellRecipes);
         mInvalidCount[4] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GTPP_Recipe.GTPP_Recipe_Map.sChemicalDehydratorRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sMultiblockChemicalDehydratorRecipes);
+                GTPPRecipeMaps.chemicalDehydratorRecipes,
+                GTPPRecipeMaps.chemicalDehydratorNonCellRecipes);
         mInvalidCount[5] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GTPP_Recipe.GTPP_Recipe_Map.sColdTrapRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sNuclearSaltProcessingPlantRecipes);
+                GTPPRecipeMaps.coldTrapRecipes,
+                GTPPRecipeMaps.nuclearSaltProcessingPlantRecipes);
         mInvalidCount[6] = RecipeGen_MultisUsingFluidInsteadOfCells.generateRecipesNotUsingCells(
-                GTPP_Recipe.GTPP_Recipe_Map.sReactorProcessingUnitRecipes,
-                GTPP_Recipe.GTPP_Recipe_Map.sNuclearSaltProcessingPlantRecipes);
+                GTPPRecipeMaps.reactorProcessingUnitRecipes,
+                GTPPRecipeMaps.nuclearSaltProcessingPlantRecipes);
     }
 
     private static void setupMaterialBlacklist() {

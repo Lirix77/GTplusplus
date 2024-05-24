@@ -45,6 +45,8 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_Utility;
+import gregtech.api.util.shutdown.ShutDownReason;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.api.objects.data.AutoMap;
 import gtPlusPlus.api.objects.minecraft.BlockPos;
@@ -204,19 +206,13 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
     }
 
     @Override
+    public void clearHatches() {
+        super.clearHatches();
+        mTurbineRotorHatches.clear();
+    }
+
+    @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
-        this.mDynamoHatches.clear();
-        this.mTecTechDynamoHatches.clear();
-        this.mTurbineRotorHatches.clear();
-        this.mMaintenanceHatches.clear();
-        if (requiresMufflers()) {
-            this.mMufflerHatches.clear();
-        }
-        this.mInputBusses.clear();
-        this.mInputHatches.clear();
-        if (requiresOutputHatch()) {
-            this.mOutputHatches.clear();
-        }
         // we do not check for casing count here. the bare minimal is 372 but we only require 360
         boolean aStructure = checkPiece(STRUCTURE_PIECE_MAIN, 3, 3, 0);
         log("Structure Check: " + aStructure);
@@ -444,7 +440,7 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
             }
 
             if (getEmptyTurbineAssemblies().size() > 0 || !areAllTurbinesTheSame()) {
-                stopMachine();
+                stopMachine(ShutDownReasonRegistry.NO_TURBINE);
                 return CheckRecipeResultRegistry.NO_TURBINE_FOUND;
             }
 
@@ -480,7 +476,7 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
                     baseEff = MathUtils.roundToClosestInt(aTotalBaseEff);
                     optFlow = MathUtils.roundToClosestInt(aTotalOptimalFlow);
                     if (optFlow <= 0 || baseEff <= 0) {
-                        stopMachine(); // in case the turbine got removed
+                        stopMachine(ShutDownReasonRegistry.NONE); // in case the turbine got removed
                         return CheckRecipeResultRegistry.NO_FUEL_FOUND;
                     }
                 } else {
@@ -489,7 +485,7 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
             }
 
             // How much the turbine should be producing with this flow
-            int newPower = fluidIntoPower(tFluids, optFlow, baseEff, flowMultipliers);
+            long newPower = fluidIntoPower(tFluids, optFlow, baseEff, flowMultipliers);
             long difference = newPower - this.lEUt; // difference between current output and new output
 
             // Magic numbers: can always change by at least 10 eu/t, but otherwise by at most 1 percent of the
@@ -524,10 +520,11 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
 
     @Override
     public boolean doRandomMaintenanceDamage() {
-        if (getMaxParallelRecipes() == 0 || getRepairStatus() == 0) {
-            stopMachine();
+        if (getMaxParallelRecipes() == 0) {
+            stopMachine(ShutDownReasonRegistry.NO_TURBINE);
             return false;
         }
+
         if (mRuntime++ > 1000) {
             mRuntime = 0;
 
@@ -559,7 +556,7 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
         return (getFullTurbineAssemblies().size());
     }
 
-    abstract int fluidIntoPower(ArrayList<FluidStack> aFluids, long aOptFlow, int aBaseEff, float[] flowMultipliers);
+    abstract long fluidIntoPower(ArrayList<FluidStack> aFluids, long aOptFlow, int aBaseEff, float[] flowMultipliers);
 
     @Override
     public int getDamageToComponent(ItemStack aStack) {
@@ -738,27 +735,23 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
 
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        if (aBaseMetaTileEntity.isServerSide()) {
-            if (mUpdate == 1 || mStartUpCheck == 1) {
-                log("Cleared Rotor Assemblies.");
-                this.mTurbineRotorHatches.clear();
-            }
-        }
         super.onPostTick(aBaseMetaTileEntity, aTick);
-        if (this.maxProgresstime() > 0 || this.getBaseMetaTileEntity().hasWorkJustBeenEnabled()) {
-            enableAllTurbineHatches();
-        }
-        if (this.maxProgresstime() <= 0) {
-            stopMachine();
+        if (aBaseMetaTileEntity.isServerSide()) {
+            if (this.maxProgresstime() > 0 || this.getBaseMetaTileEntity().hasWorkJustBeenEnabled()) {
+                enableAllTurbineHatches();
+            }
+            if (this.maxProgresstime() <= 0) {
+                stopMachine(ShutDownReasonRegistry.NONE);
+            }
         }
     }
 
     @Override
-    public void stopMachine() {
+    public void stopMachine(@NotNull ShutDownReason reason) {
         baseEff = 0;
         optFlow = 0;
         disableAllTurbineHatches();
-        super.stopMachine();
+        super.stopMachine(reason);
     }
 
     @Override
@@ -846,10 +839,12 @@ public abstract class GregtechMetaTileEntity_LargerTurbineBase extends
             aAmpsToInject = (int) (leftToInject / aVoltage);
             aRemainder = (int) (leftToInject - (aAmpsToInject * aVoltage));
             ampsOnCurrentHatch = (int) Math.min(aDynamo.maxAmperesOut(), aAmpsToInject);
-            for (int i = 0; i < ampsOnCurrentHatch; i++) {
-                aDynamo.getBaseMetaTileEntity().increaseStoredEnergyUnits(aVoltage, false);
-            }
+
+            // add full amps
+            aDynamo.getBaseMetaTileEntity().increaseStoredEnergyUnits(aVoltage * ampsOnCurrentHatch, false);
             injected += aVoltage * ampsOnCurrentHatch;
+
+            // add reminder
             if (aRemainder > 0 && ampsOnCurrentHatch < aDynamo.maxAmperesOut()) {
                 aDynamo.getBaseMetaTileEntity().increaseStoredEnergyUnits(aRemainder, false);
                 injected += aRemainder;

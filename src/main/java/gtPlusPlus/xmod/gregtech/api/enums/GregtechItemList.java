@@ -560,6 +560,12 @@ public enum GregtechItemList implements GregtechItemContainer {
     GT_MetaTileEntity_ChiselBus_MV,
     GT_MetaTileEntity_ChiselBus_HV,
 
+    // Solidifier Hatches for Industrial Multi Machine
+    GT_MetaTileEntity_Solidifier_I,
+    GT_MetaTileEntity_Solidifier_II,
+    GT_MetaTileEntity_Solidifier_III,
+    GT_MetaTileEntity_Solidifier_IV,
+
     // ----------------------------------------------------------------------------
 
     /**
@@ -696,8 +702,6 @@ public enum GregtechItemList implements GregtechItemContainer {
     GT_Solar_MAX,
 
     // Variable voltage RF convertor
-    Energy_Buffer_RF_Convertor,
-    // Energy Buffers
     Energy_Buffer_1by1_ULV,
     Energy_Buffer_1by1_LV,
     Energy_Buffer_1by1_MV,
@@ -803,6 +807,11 @@ public enum GregtechItemList implements GregtechItemContainer {
     Cover_Overflow_Item_IV,
 
     // ----------------------------------------------------------------------------
+    // Additional washers
+    SimpleDustWasher_LV,
+    SimpleDustWasher_HV,
+    SimpleDustWasher_IV,
+    SimpleDustWasher_ZPM,
 
     ;
 

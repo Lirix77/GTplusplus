@@ -7,7 +7,6 @@ import java.util.Set;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-import gregtech.api.GregTech_API;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.Materials;
 import gregtech.api.util.GT_ModHandler;
@@ -181,6 +180,15 @@ public class RecipeGen_Ore extends RecipeGen_Base {
                 20 * 20,
                 tVoltageMultiplier / 2)) {
             Logger.MATERIALS("[Macerator] Added Recipe: 'Macerate ore to Crushed ore'");
+        }
+        // Macerate raw ore to Crushed
+        if (GT_Values.RA.addPulveriserRecipe(
+                material.getRawOre(1),
+                new ItemStack[] { material.getCrushed(2) },
+                new int[] { 10000 },
+                20 * 20,
+                tVoltageMultiplier / 2)) {
+            Logger.MATERIALS("[Macerator] Added Recipe: 'Macerate raw ore to Crushed ore'");
         }
         // Macerate Crushed to Impure Dust
         if (GT_Values.RA.addPulveriserRecipe(
@@ -680,13 +688,11 @@ public class RecipeGen_Ore extends RecipeGen_Base {
             Logger.MATERIALS("[Electrolyzer] Either both inputs or outputs are null.");
             return false;
         }
-        if ((aInput1 != null)
-                && ((aDuration = GregTech_API.sRecipeFile.get("electrolyzer", aInput1, aDuration)) <= 0)) {
+        if ((aInput1 != null) && (aDuration <= 0)) {
             Logger.MATERIALS("[Electrolyzer] Fail 1.");
             return false;
         }
-        if ((aFluidInput != null) && ((aDuration = GregTech_API.sRecipeFile
-                .get("electrolyzer", aFluidInput.getFluid().getName(), aDuration)) <= 0)) {
+        if ((aFluidInput != null) && (aDuration <= 0)) {
             Logger.MATERIALS("[Electrolyzer] Fail 2.");
             return false;
         }

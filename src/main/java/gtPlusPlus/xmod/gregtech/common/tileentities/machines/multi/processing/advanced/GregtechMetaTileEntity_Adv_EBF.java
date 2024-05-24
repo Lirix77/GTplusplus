@@ -16,6 +16,7 @@ import static gregtech.api.util.GT_StructureUtility.ofCoil;
 import static gregtech.api.util.GT_Utility.filterValidMTEs;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -38,14 +39,18 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
+import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_OverclockCalculator;
 import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
+import gtPlusPlus.core.util.minecraft.FluidUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GT_MetaTileEntity_Hatch_CustomFluidBase;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
@@ -92,8 +97,8 @@ public class GregtechMetaTileEntity_Adv_EBF extends GregtechMeta_MultiBlockBase<
                 .addInfo("Constructed exactly the same as a normal EBF").addPollutionAmount(getPollutionPerSecond(null))
                 .addSeparator().addController("Bottom center").addCasingInfoMin(mCasingName, 8, false)
                 .addInputHatch("Any Casing", 1).addInputBus("Any Casing", 1).addOutputBus("Any Casing", 1)
-                .addOutputHatch("Any Casing", 1).addStructureHint(mHatchName, 1).addEnergyHatch("Any Casing", 1)
-                .addMufflerHatch("Any Casing", 1).addMaintenanceHatch("Any Casing", 1)
+                .addOutputHatch("Any Casing", 1).addEnergyHatch("Any Casing", 1).addMufflerHatch("Any Casing", 1)
+                .addMaintenanceHatch("Any Casing", 1).addOtherStructurePart(mHatchName, "Any Casing", 1)
                 .toolTipFinisher(CORE.GT_Tooltip_Builder.get());
         return tt;
     }
@@ -120,6 +125,7 @@ public class GregtechMetaTileEntity_Adv_EBF extends GregtechMeta_MultiBlockBase<
                             ofChain(
                                     buildHatchAdder(GregtechMetaTileEntity_Adv_EBF.class)
                                             .adder(GregtechMetaTileEntity_Adv_EBF::addPyrotheumHatch).hatchId(968)
+                                            .shouldReject(x -> !x.mPyrotheumHatches.isEmpty())
                                             .casingIndex(CASING_TEXTURE_ID).dot(1).build(),
                                     buildHatchAdder(GregtechMetaTileEntity_Adv_EBF.class).atLeast(
                                             InputBus,
@@ -199,8 +205,13 @@ public class GregtechMetaTileEntity_Adv_EBF extends GregtechMeta_MultiBlockBase<
     }
 
     @Override
-    public GT_Recipe.GT_Recipe_Map getRecipeMap() {
-        return GT_Recipe.GT_Recipe_Map.sBlastRecipes;
+    public RecipeMap<?> getRecipeMap() {
+        return RecipeMaps.blastFurnaceRecipes;
+    }
+
+    @Override
+    public int getRecipeCatalystPriority() {
+        return -1;
     }
 
     @Override
@@ -261,7 +272,9 @@ public class GregtechMetaTileEntity_Adv_EBF extends GregtechMeta_MultiBlockBase<
                     if (!this.depleteInputFromRestrictedHatches(this.mPyrotheumHatches, 5)) {
                         if (mGraceTimer-- == 0) {
                             this.causeMaintenanceIssue();
-                            this.stopMachine();
+                            this.stopMachine(
+                                    ShutDownReasonRegistry.outOfFluid(
+                                            Objects.requireNonNull(FluidUtils.getFluidStack("pyrotheum", 10))));
                             mGraceTimer = 2;
                         }
                     }

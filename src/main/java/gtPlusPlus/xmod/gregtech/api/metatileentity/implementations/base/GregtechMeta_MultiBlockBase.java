@@ -69,12 +69,13 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Maint
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Muffler;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Output;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_OutputBus;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_Recipe.GT_Recipe_Map;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.IGT_HatchAdder;
 import gregtech.common.items.GT_MetaGenerated_Tool_01;
+import gregtech.common.tileentities.machines.IDualInputHatch;
 import gtPlusPlus.GTplusplus;
 import gtPlusPlus.GTplusplus.INIT_PHASE;
 import gtPlusPlus.api.objects.Logger;
@@ -391,7 +392,7 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
 
     @Override
     protected void setProcessingLogicPower(ProcessingLogic logic) {
-        logic.setAvailableVoltage(GT_Utility.roundDownVoltage(this.getMaxInputVoltage()));
+        logic.setAvailableVoltage(GT_Utility.roundUpVoltage(this.getMaxInputVoltage()));
         logic.setAvailableAmperage(1L);
     }
 
@@ -582,6 +583,18 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
                 && (this.getPollutionPerSecond(null) > 0 ? !mMufflerHatches.isEmpty() : true);
     }
 
+    @Override
+    public void clearHatches() {
+        super.clearHatches();
+        this.mChargeHatches.clear();
+        this.mDischargeHatches.clear();
+        this.mAirIntakes.clear();
+        this.mTecTechEnergyHatches.clear();
+        this.mTecTechDynamoHatches.clear();
+        this.mAllEnergyHatches.clear();
+        this.mAllDynamoHatches.clear();
+    }
+
     public <E> boolean addToMachineListInternal(ArrayList<E> aList, final IGregTechTileEntity aTileEntity,
             final int aBaseCasingIndex) {
         return addToMachineListInternal(aList, getMetaTileEntity(aTileEntity), aBaseCasingIndex);
@@ -713,7 +726,10 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
             aDidAdd = addToMachineListInternal(mOutputHatches, aMetaTileEntity, aBaseCasingIndex);
 
         // Process Remaining hatches using Vanilla GT Logic
-        else if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_InputBus)
+        else if (aMetaTileEntity instanceof IDualInputHatch hatch) {
+            hatch.updateCraftingIcon(this.getMachineCraftingIcon());
+            aDidAdd = addToMachineListInternal(mDualInputHatches, aMetaTileEntity, aBaseCasingIndex);
+        } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_InputBus)
             aDidAdd = addToMachineListInternal(mInputBusses, aMetaTileEntity, aBaseCasingIndex);
         else if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_OutputBus)
             aDidAdd = addToMachineListInternal(mOutputBusses, aMetaTileEntity, aBaseCasingIndex);
@@ -797,7 +813,7 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
         return resetRecipeMapForAllInputHatches(this.getRecipeMap());
     }
 
-    public boolean resetRecipeMapForAllInputHatches(GT_Recipe_Map aMap) {
+    public boolean resetRecipeMapForAllInputHatches(RecipeMap<?> aMap) {
         int cleared = 0;
         for (GT_MetaTileEntity_Hatch_Input g : this.mInputHatches) {
             if (resetRecipeMapForHatch(g, aMap)) {
@@ -812,7 +828,7 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
         return cleared > 0;
     }
 
-    public boolean resetRecipeMapForHatch(IGregTechTileEntity aTileEntity, GT_Recipe_Map aMap) {
+    public boolean resetRecipeMapForHatch(IGregTechTileEntity aTileEntity, RecipeMap<?> aMap) {
         try {
             final IMetaTileEntity aMetaTileEntity = getMetaTileEntity(aTileEntity);
             if (aMetaTileEntity == null) {
@@ -831,7 +847,7 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
         }
     }
 
-    public boolean resetRecipeMapForHatch(GT_MetaTileEntity_Hatch aTileEntity, GT_Recipe_Map aMap) {
+    public boolean resetRecipeMapForHatch(GT_MetaTileEntity_Hatch aTileEntity, RecipeMap<?> aMap) {
         if (aTileEntity == null) {
             return false;
         }
@@ -842,24 +858,24 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
             if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_Input) {
                 ((GT_MetaTileEntity_Hatch_Input) aMetaTileEntity).mRecipeMap = null;
                 ((GT_MetaTileEntity_Hatch_Input) aMetaTileEntity).mRecipeMap = aMap;
-                if (aMap != null && aMap.mNEIName != null) {
-                    log("Remapped Input Hatch to " + aMap.mNEIName + ".");
+                if (aMap != null) {
+                    log("Remapped Input Hatch to " + aMap.unlocalizedName + ".");
                 } else {
                     log("Cleared Input Hatch.");
                 }
             } else if (aMetaTileEntity instanceof GT_MetaTileEntity_Hatch_InputBus) {
                 ((GT_MetaTileEntity_Hatch_InputBus) aMetaTileEntity).mRecipeMap = null;
                 ((GT_MetaTileEntity_Hatch_InputBus) aMetaTileEntity).mRecipeMap = aMap;
-                if (aMap != null && aMap.mNEIName != null) {
-                    log("Remapped Input Bus to " + aMap.mNEIName + ".");
+                if (aMap != null) {
+                    log("Remapped Input Bus to " + aMap.unlocalizedName + ".");
                 } else {
                     log("Cleared Input Bus.");
                 }
             } else {
                 ((GT_MetaTileEntity_Hatch_Steam_BusInput) aMetaTileEntity).mRecipeMap = null;
                 ((GT_MetaTileEntity_Hatch_Steam_BusInput) aMetaTileEntity).mRecipeMap = aMap;
-                if (aMap != null && aMap.mNEIName != null) {
-                    log("Remapped Input Bus to " + aMap.mNEIName + ".");
+                if (aMap != null) {
+                    log("Remapped Input Bus to " + aMap.unlocalizedName + ".");
                 } else {
                     log("Cleared Input Bus.");
                 }
@@ -1145,7 +1161,7 @@ public abstract class GregtechMeta_MultiBlockBase<T extends GT_MetaTileEntity_Ex
     @Override
     public boolean onSolderingToolRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
             float aX, float aY, float aZ) {
-        if (supportsVoidProtection()) {
+        if (supportsVoidProtection() && wrenchingSide == getBaseMetaTileEntity().getFrontFacing()) {
             Set<VoidingMode> allowed = getAllowedVoidingModes();
             setVoidingMode(getVoidingMode().nextInCollection(allowed));
             GT_Utility.sendChatToPlayer(

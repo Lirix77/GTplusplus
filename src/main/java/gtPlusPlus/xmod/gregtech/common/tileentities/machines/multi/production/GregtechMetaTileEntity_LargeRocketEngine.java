@@ -35,20 +35,20 @@ import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
-import gregtech.api.util.GTPP_Recipe;
 import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_Recipe.GT_Recipe_Map;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.item.chemistry.RocketFuels;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.material.MISC_MATERIALS;
 import gtPlusPlus.core.util.minecraft.FluidUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_AirIntake;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Muffler_Adv;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
@@ -232,8 +232,8 @@ public class GregtechMetaTileEntity_LargeRocketEngine extends
     }
 
     @Override
-    public GT_Recipe_Map getRecipeMap() {
-        return GTPP_Recipe.GTPP_Recipe_Map.sRocketFuels;
+    public RecipeMap<?> getRecipeMap() {
+        return GTPPRecipeMaps.rocketFuels;
     }
 
     @Override
@@ -243,7 +243,7 @@ public class GregtechMetaTileEntity_LargeRocketEngine extends
         int aircount = getAir();
         int aAirToConsume = this.euProduction / 100;
         if (aircount < aAirToConsume) {
-            criticalStopMachine();
+            stopMachine(ShutDownReasonRegistry.outOfFluid(new FluidStack(sAirFluid, aAirToConsume)));
             return SimpleCheckRecipeResult.ofFailure("no_air");
         } else {
             int aTotalAir = 0;
@@ -283,7 +283,7 @@ public class GregtechMetaTileEntity_LargeRocketEngine extends
                     continue;
                 }
                 if (this.freeFuelTicks == 0) {
-                    for (final GT_Recipe aFuel : getRecipeMap().mRecipeList) {
+                    for (final GT_Recipe aFuel : getRecipeMap().getAllRecipes()) {
                         final FluidStack tLiquid;
                         tLiquid = aFuel.mFluidInputs[0];
                         if (hatchFluid1.isFluidEqual(tLiquid)) {
@@ -426,28 +426,6 @@ public class GregtechMetaTileEntity_LargeRocketEngine extends
             }
         }
         return injected > 0;
-    }
-
-    @Override
-    public boolean onRunningTick(ItemStack aStack) {
-        if (this.mRuntime % 20 == 0) {
-            if (this.mMufflerHatches.size() == 1
-                    && this.mMufflerHatches.get(0) instanceof GT_MetaTileEntity_Hatch_Muffler_Adv tMuffler) {
-                if (!tMuffler.hasValidFilter()) {
-                    ArrayList<ItemStack> tInputs = getStoredInputs();
-                    for (ItemStack tItem : tInputs) {
-                        if (tMuffler.isAirFilter(tItem)) {
-                            tMuffler.mInventory[0] = tItem.copy();
-                            depleteInput(tItem);
-                            updateSlots();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        super.onRunningTick(aStack);
-        return true;
     }
 
     public Block getCasingBlock() {
