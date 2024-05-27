@@ -80,7 +80,7 @@ public class GTplusplus_Everglades implements ActionListener {
         GameRegistry.registerWorldGenerator(new WorldGen_GT_Base(), Short.MAX_VALUE);
         getEvergladesBiome().load();
         Everglades_Dimension.load();
-        addToVoidMinerDrops();
+        //addToVoidMinerDrops();
     }
 
     public static synchronized void GenerateOreMaterials() {

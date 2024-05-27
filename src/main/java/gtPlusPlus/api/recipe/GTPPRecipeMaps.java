@@ -88,9 +88,9 @@ public class GTPPRecipeMaps {
             .slotOverlays(
                     (index, isFluid, isOutput,
                             isSpecial) -> !isFluid && !isOutput ? GT_UITextures.OVERLAY_SLOT_MICROSCOPE : null)
-            .neiHandlerInfo(
-                    builder -> builder.setDisplayStack(
-                            ItemUtils.getItemStackFromFQRN("AdvancedSolarPanel:BlockMolecularTransformer", 1)))
+            //.neiHandlerInfo(
+            //        builder -> builder.setDisplayStack(
+            //                ItemUtils.getItemStackFromFQRN("AdvancedSolarPanel:BlockMolecularTransformer", 1)))
             .build();
     public static final RecipeMap<RecipeMapBackend> chemicalPlantRecipes = RecipeMapBuilder
             .of("gtpp.recipe.fluidchemicaleactor").maxIO(4, 6, 4, 3)

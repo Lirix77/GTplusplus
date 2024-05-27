@@ -209,9 +209,9 @@ public class RecipeGen_BlastSmelterGT_GTNH {
 
                     GT_Values.RA.stdBuilder().itemInputs(newInput).fluidInputs(inputsF).fluidOutputs(mMoltenStack)
                             .duration(MathUtils.roundToClosestInt(time * 0.8)).eut(voltage)
-                            .recipeCategory(
-                                    inputLength <= 2 ? GTPPRecipeCategories.absNonAlloyRecipes
-                                            : GTPPRecipeMaps.alloyBlastSmelterRecipes.getDefaultRecipeCategory())
+                            //.recipeCategory(
+                            //        inputLength <= 2 ? GTPPRecipeCategories.absNonAlloyRecipes
+                            //                : GTPPRecipeMaps.alloyBlastSmelterRecipes.getDefaultRecipeCategory())
                             .addTo(GTPPRecipeMaps.alloyBlastSmelterRecipes);
                 } else {
                     if (!enabled) {

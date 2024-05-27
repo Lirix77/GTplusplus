@@ -135,7 +135,7 @@ public class RecipeGen_BlastSmelter extends RecipeGen_Base {
                 if (M.requiresBlastFurnace()) {
                     GT_Values.RA.stdBuilder().itemInputs(tItemStackTest).fluidOutputs(M.getFluidStack(fluidAmount))
                             .duration(duration / (mTotalPartsCounter > 0 ? mTotalPartsCounter : 1)).eut(aVoltage)
-                            .recipeCategory(GTPPRecipeCategories.absNonAlloyRecipes)
+                            //.recipeCategory(GTPPRecipeCategories.absNonAlloyRecipes)
                             .addTo(GTPPRecipeMaps.alloyBlastSmelterRecipes);
                 } else {
                     Logger.WARNING("[BAS] Failed.");
