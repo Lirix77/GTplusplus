@@ -202,7 +202,7 @@ public class CORE {
     public static class Everglades {
 
         public static final String NAME = "GT++ Toxic Everglades";
-        public static final String VERSION = "GRADLETOKEN_VERSION";
+        public static final String VERSION = "1.10.30";
     }
 
     public static final void crash() {
