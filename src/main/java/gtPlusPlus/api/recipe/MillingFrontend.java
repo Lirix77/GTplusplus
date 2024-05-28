@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.util.StatCollector;
 
 import gregtech.api.recipe.BasicUIPropertiesBuilder;
@@ -25,6 +27,7 @@ public class MillingFrontend extends RecipeMapFrontend {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     protected List<String> handleNEIItemInputTooltip(List<String> currentTip,
             GT_NEI_DefaultHandler.FixedPositionedStack pStack) {
         if (ItemUtils.isMillingBall(pStack.item)) {
@@ -36,6 +39,7 @@ public class MillingFrontend extends RecipeMapFrontend {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     protected void drawNEIOverlayForInput(GT_NEI_DefaultHandler.FixedPositionedStack stack) {
         if (ItemUtils.isMillingBall(stack.item)) {
             drawNEIOverlayText("NC*", stack);

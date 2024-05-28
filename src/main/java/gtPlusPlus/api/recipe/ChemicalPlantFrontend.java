@@ -8,6 +8,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.recipe.BasicUIPropertiesBuilder;
 import gregtech.api.recipe.NEIRecipePropertiesBuilder;
 import gregtech.api.recipe.RecipeMapFrontend;
@@ -46,6 +48,7 @@ public class ChemicalPlantFrontend extends RecipeMapFrontend {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     protected List<String> handleNEIItemInputTooltip(List<String> currentTip,
             GT_NEI_DefaultHandler.FixedPositionedStack pStack) {
         if (ItemUtils.isCatalyst(pStack.item)) {
@@ -58,6 +61,7 @@ public class ChemicalPlantFrontend extends RecipeMapFrontend {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     protected void drawNEIOverlayForInput(GT_NEI_DefaultHandler.FixedPositionedStack stack) {
         if (ItemUtils.isCatalyst(stack.item)) {
             drawNEIOverlayText("NC*", stack);
